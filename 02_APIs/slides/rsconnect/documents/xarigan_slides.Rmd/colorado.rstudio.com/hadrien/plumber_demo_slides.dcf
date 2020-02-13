@@ -1,0 +1,12 @@
+name: plumber_demo_slides
+title: Plumber Demo (slides)
+username: hadrien
+account: hadrien
+server: colorado.rstudio.com
+hostUrl: https://colorado.rstudio.com/rsc/__api__
+appId: 4374
+bundleId: 34118
+url: https://colorado.rstudio.com/rsc/content/4374/
+when: 1581372958.56126
+asMultiple: FALSE
+asStatic: FALSE
