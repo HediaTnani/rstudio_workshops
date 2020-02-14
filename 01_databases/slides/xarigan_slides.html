@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Working with Databases in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Hadrien Dykiel &amp; Alex Gold" />
+    <meta name="date" content="2020-02-26" />
+    <link href="xarigan_slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="xarigan_slides_files/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Working with Databases in R
+### Hadrien Dykiel &amp; Alex Gold
+### 2020-02-26
+
+---
+
+
+# Databases and R
+
+.left[
+## Databases (SQL)
+
+- Storage
+- More than fits in memory
+- Langauge Agnostic
+]
+
+--
+
+.right[
+## R
+
+- Iteration/Grouping
+- Machine Learning
+- Visualization (Interactive)
+]
+
+---
+
+# Connecting to Databases
+
+# dplyr + Databases = dbplyr
+
+# 3 Strategies for Efficient Queries
+
+# How to Deploy with Databases
+
+
+
+
+- Stands for **Application Programming Interface**
+- APIs are used to **transfer information** between applications/programs
+- HTTP APIs have become the **predominant language** by which software communicates
+
+![National Weather Service](images/weather_service.png)
+
+???
+"APIs are how weather forecast data is shared from a reputable source like the National Weather Service to hundreds of software apps that specialize in its presentation." Brenda Jin
+
+---
+# You call APIs by making "requests"  
+
+.right-column[
+**Requests are made up of:**
+- a start line (mandatory)  
+  - HTTP version (e.g. HTTP/1.1)
+  - Method (e.g. GET, POST, PUT, DELETE)
+  - API folder path
+  - parameters
+- headers (optional)
+  - host name
+  - token
+- body (optional)
+
+**How to make API calls in R:**  
+`httr::GET(url, query = &lt;list of query parameters&gt;, ...)`
+]
+
+.left-column[
+![](images/request.png)
+]
+
+???
+GET http://www.w3.org/pub/WWW/TheProject.html HTTP/1.1
+
+https:://api-endpoint.org/api/rest_v1/resource_name?query1=value1&amp;query2=value2
+
+
+---
+# ... and the API responds with a "response"  
+
+.left-column[
+![](images/response.png)
+]
+
+
+.right-column[
+API responses will most often be JSON or XML, standard formats for transferring information over the web.  
+
+R, like other programming languages, has some great tooling for working with these standard data types.(e.g. `jsonlite::fromJSON(content(response, as = "text")))`
+]
+
+
+---
+# Exercise 2.1: make an API call (with your web browser)  
+
+- Open your web browser
+
+- Right-click and select "Inspect"
+
+- Go the to "Network tab"
+- Try any of these from your web browser:
+  - Execute a google search
+  - Navigate to the URL https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Barack_Obama/monthly/2018010100/2018123100
+  
+
+Are you able to find the API request (URL, Method, Headers, ect.) and response (headers, response body, etc.) ?
+
+???
+the web browser made the request for you
+to-do: verify inspect process w/ other web browsers. Increase font size + spacing
+
+
+---
+# Directory vs. parameter based APIs  
+
+- https:://api-endpoint.org/api/rest_v1/resource_name?query1=value1&amp;query2=value2
+
+- https:://api-endpoint.org/api/rest_v1/rescource_name/query1/value1
+
+???
+The URL, also referred to as the endpoint, is how you access the API resource you’re looking for. In addition to the path to the API resource, you may also tack on some query parameters which allow you to modify your request for different key-value pairs. Query parameters are added at the end of your URL like so: https:://api-endpoint.org/api/rest_v1/resource_name?query1=value1&amp;query2=value2.
+Or the API may use Path Variables instead, in which case your HTTP request would look something like this: https::/api-endpoint.org/api/rest_v1/rescource_name/query1/value1
+
+
+---
+# How to make an API call in R  
+
+- Does an API client already exist?
+
+- If yes, use it!
+
+- If no, then use the `httr` package
+
+???
+Q: do other packages exist for making API calls?
+
+
+
+---
+# Example of an API client
+
+`pageviews`
+
+???
+to do: complete example
+
+---
+# `httr` makes http easy  
+
+`?httr`  
+
+--
+
+**Description**  
+httr is organised around the six most common http verbs: GET(), PATCH(), POST(), HEAD(), PUT(), and DELETE().  
+
+--
+
+**Details**  
+Each request returns a response() object which provides easy access to status code, cookies, headers, timings, and other useful info. The content of the request is available as a raw vector (content()), character vector (text_content()), or parsed into an R object (parsed_content()), currently for html, xml, json, png and jpeg).  
+
+--
+Requests can be modified by various config options like set_cookies(), add_headers(), authenticate(), use_proxy(), verbose(), and timeout()
+
+
+---
+# Exercise 2.2: make an API call with `httr::GET()`
+
+???
+To do: explain GET vs. other verbs
+---
+# 
+
+---
+# Plumber Package
+Convert your R code into a REST API!  
+
+![](images/plumber.png)
+
+---
+# APIs provide a common interface other software can interact with
+
+![](images/rest_api.png)
+???
+APIs give these systems a common language via a common interface
+"IT org not set up to incorporate R models" - common challenge
+
+
+---
+# Insurance data science teams are starting build a lot more APIs (with R)!
+Some examples of what they are building include:
+
+- APIs for 3rd parties like brokers &amp; partners
+- Using APIs as a way to deploy models like:
+  - Fraud detection 
+  - Pricing / Rating
+  - Expected Claims Cost
+
+???
+"APIs can help make it easy for partners to do business with you. Providing APIs to an ecosystem of related services partners is an approach that is well-suited for generating new revenue streams." - [IBM Whitepaper\: Identifying API use cases\:
+Property and casualty insurance](https://www.ibm.com/downloads/cas/XNMBM5BL)
+
+---
+# Lemonade Insurance API Example  
+![](images/lemonade_api.png)
+
+---
+# Zillow Insurance API Example  
+![](images/zillow_api.png)
+
+---
+# Plumber makes it easier, faster, and cheaper  
+
+![](images/before_now.png)
+
+---
+# Demo time!  
+Follow these 5 steps to create your first Plumber API:
+  1. write an R function
+  2. install plumber
+  3. add special comments
+  4. test it / try it out
+  5. deploy it
+
+---
+# Plumber docs, examples, and videos  
+- Slides &amp; example scripts from today's screenshare: https://github.com/hdykiel/plumber-demo
+- Plumber website: https://www.rplumber.io/
+- James' [rstudio::conf 2019 Plumber talk](https://resources.rstudio.com/rstudio-conf-2019/democratizing-r-with-plumber-apis) (2020 presentation available soon!)
+- e-mail me at Hadrien@rstudio.com with any questions
+
+---
+# Please take the survey:
+
+https://forms.gle/2M14gSedF9khyzTE7
+
+---
+# Appendix    
+- These slides were created with `rmarkdown` and `xaringan`. To learn more about the `xaringan` package, check out Alision's slides from her rstudio::conf 2019 workshop https://arm.rbind.io/slides/xaringan.html
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create();
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
