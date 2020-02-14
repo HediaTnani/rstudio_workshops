@@ -105,7 +105,41 @@ Or the API may use Path Variables instead, in which case your HTTP request would
 Q: do other packages exist for making API calls?
 
 
-  
+
+---
+# Example of an API client
+
+`pageviews`
+
+???
+to do: complete example
+
+---
+# `httr` makes http easy  
+
+`?httr`  
+
+--
+
+**Description**  
+httr is organised around the six most common http verbs: GET(), PATCH(), POST(), HEAD(), PUT(), and DELETE().  
+
+--
+
+**Details**  
+Each request returns a response() object which provides easy access to status code, cookies, headers, timings, and other useful info. The content of the request is available as a raw vector (content()), character vector (text_content()), or parsed into an R object (parsed_content()), currently for html, xml, json, png and jpeg).  
+
+--
+Requests can be modified by various config options like set_cookies(), add_headers(), authenticate(), use_proxy(), verbose(), and timeout()
+
+
+---
+# Exercise 2.2: make an API call with `httr::GET()`
+
+???
+To do: explain GET vs. other verbs
+---
+# 
 
 ---
 # Plumber Package
