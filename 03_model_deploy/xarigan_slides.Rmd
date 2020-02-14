@@ -1,0 +1,62 @@
+---
+title: "Deploying Models with R"
+author: "Hadrien Dykiel & Alex Gold"
+date: "2/13/2020"
+output: xaringan::moon_reader
+---
+
+# Deploying Models: The Problems
+
+```
+* Write an R function
+* Oh noes! Someone wants to use it and they don’t use R
+* Plumber to the rescue!
+```
+
+# Putting a Model Into a Plumber API
+
+## Mechanics
+
+## Outstanding Problems
+
+- Where do I put the model object?
+- How do I get model predictions to others?
+  - How do I make sure the right people get it?
+- How do I make sure it's available when they need it?
+
+--
+
+# Deploying Models: The Problems
+
+- Where do I put the model object? Database or pin
+- How do I get model predictions to others? API or database
+  - How do I make sure the right people get it? Database or RStudio Connect
+- How do I make sure it's available when they need it? Database Access or API Keys
+
+---
+
+# Intro to the Pins Package
+
+(Alex's conf talk)
+
+## Using Pins for Saving Models
+
+---
+# Deployment to RStudio Connect (git-backed?)
+
+## Creating a pin from a deployed RMD
+
+## Using a pin from RMD
+
+## Setting Access Rights
+
+## Using API Key to Secure
+
+---
+# Scaling RSC
+
+---
+# Using Drake
+
+---
+# An Alternative: Save Predictions to a Database
