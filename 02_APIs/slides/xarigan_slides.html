@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="" xml:lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>Working with and building APIs in R</title>
+    <title>How to work with and build APIs in R</title>
     <meta charset="utf-8" />
     <meta name="author" content="Hadrien Dykiel &amp; Alex Gold" />
     <link href="xarigan_slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
@@ -11,7 +11,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Working with and building APIs in R
+# How to work with and build APIs in R
 ### Hadrien Dykiel &amp; Alex Gold
 ### 2/13/2020
 
@@ -122,13 +122,42 @@ Q: do other packages exist for making API calls?
 ---
 # Example of an API client
 
-`pageviews`
+
+Depending on which API you wish to work with, an R package might already have been created for it!
+
+--
+
+**API Client Example**  
+
+`pageviews` package:  An API Client for Wikipedia Traffic Data
+
+--
+
+```r
+library(pageviews)
+article_pageviews(article = "Barack_Obama")
+```
+
+```
+##     project language      article     access      agent granularity       date
+## 1 wikipedia       en Barack_Obama all-access all-agents       daily 2015-10-01
+##   views
+## 1 31994
+```
 
 ???
-to do: complete example
+
+API clients are native interfaces to APIs that hide API complexity and let you read data in as R data objects.
+API clients are software libraries in various languages, including R, that make it possible for programmers to interact with the API without ever having to care about how it is structured, or do the heavy lifting of cleaning up the data.
 
 ---
-# `httr` makes http easy  
+class: center, middle
+
+No API client? No problem!
+
+---
+# `httr` makes http easy
+
 
 `?httr`  
 
@@ -142,17 +171,43 @@ httr is organised around the six most common http verbs: GET(), PATCH(), POST(),
 **Details**  
 Each request returns a response() object which provides easy access to status code, cookies, headers, timings, and other useful info. The content of the request is available as a raw vector (content()), character vector (text_content()), or parsed into an R object (parsed_content()), currently for html, xml, json, png and jpeg).  
 
---
+-
+
 Requests can be modified by various config options like set_cookies(), add_headers(), authenticate(), use_proxy(), verbose(), and timeout()
 
 
 ---
 # Exercise 2.2: make an API call with `httr::GET()`
 
+- Make a request by calling `httr::GET()` with the URL http://httpbin.org/get
+
+- print the response object
+
+- pull out important parts of the response with helper functions like `status_code()` and `headers()`
+
+- access the body of the request using `content()`
+
 ???
-To do: explain GET vs. other verbs
+"HTTP methods like GET, POST, UPDATE, and DELETE inform the server about the action to be performed. Different HTTP methods invoked on the same URL provide different functionality..."
+
+"Use GET for reading resources.  GET requests never, ever change the state of the resource. They have no side effect; the GET method has a read-only semantic. GET is idempotent. Consequently, you can cache the calls perfectly."
+
+"httpbin.org throughout this introduction. It accepts many types of http request and returns json that describes the data that it received. This makes it easy to see what httr is doing." - httr vignette
+
+"GET() is used by your browser when requesting a page, and POST() is (usually) used when submitting a form to a server. " - httr vignette
+
 ---
-# 
+# Exercise 2.3: access the body of the response  
+
+To do: add `content()` example (and maybe `fromJSON`)
+
+???
+"These are convenient for interactive usage, but if you’re writing an API wrapper, it’s best to parse the text or raw content yourself and check it is as you expect. See the API wrappers vignette for more details." - vignette
+
+---
+class: center, middle
+
+Time to build your own API!
 
 ---
 # Plumber Package
@@ -222,7 +277,7 @@ https://forms.gle/2M14gSedF9khyzTE7
 - These slides were created with `rmarkdown` and `xaringan`. To learn more about the `xaringan` package, check out Alision's slides from her rstudio::conf 2019 workshop https://arm.rbind.io/slides/xaringan.html
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/remark/0.14.0/remark.min.js"></script>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create();
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

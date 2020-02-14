@@ -1,5 +1,5 @@
 ---
-title: "Working with and building APIs in R"
+title: "How to work with and build APIs in R"
 author: "Hadrien Dykiel & Alex Gold"
 date: "2/13/2020"
 output: xaringan::moon_reader
@@ -109,13 +109,34 @@ Q: do other packages exist for making API calls?
 ---
 # Example of an API client
 
-`pageviews`
+
+Depending on which API you wish to work with, an R package might already have been created for it!
+
+--
+
+**API Client Example**  
+
+`pageviews` package:  An API Client for Wikipedia Traffic Data
+
+--
+```{r}
+library(pageviews)
+article_pageviews(article = "Barack_Obama")
+```
 
 ???
-to do: complete example
+
+API clients are native interfaces to APIs that hide API complexity and let you read data in as R data objects.
+API clients are software libraries in various languages, including R, that make it possible for programmers to interact with the API without ever having to care about how it is structured, or do the heavy lifting of cleaning up the data.
 
 ---
-# `httr` makes http easy  
+class: center, middle
+
+No API client? No problem!
+
+---
+# `httr` makes http easy
+
 
 `?httr`  
 
@@ -129,17 +150,43 @@ httr is organised around the six most common http verbs: GET(), PATCH(), POST(),
 **Details**  
 Each request returns a response() object which provides easy access to status code, cookies, headers, timings, and other useful info. The content of the request is available as a raw vector (content()), character vector (text_content()), or parsed into an R object (parsed_content()), currently for html, xml, json, png and jpeg).  
 
---
+-
+
 Requests can be modified by various config options like set_cookies(), add_headers(), authenticate(), use_proxy(), verbose(), and timeout()
 
 
 ---
 # Exercise 2.2: make an API call with `httr::GET()`
 
+- Make a request by calling `httr::GET()` with the URL http://httpbin.org/get
+
+- print the response object
+
+- pull out important parts of the response with helper functions like `status_code()` and `headers()`
+
+- access the body of the request using `content()`
+
 ???
-To do: explain GET vs. other verbs
+"HTTP methods like GET, POST, UPDATE, and DELETE inform the server about the action to be performed. Different HTTP methods invoked on the same URL provide different functionality..."
+
+"Use GET for reading resources.  GET requests never, ever change the state of the resource. They have no side effect; the GET method has a read-only semantic. GET is idempotent. Consequently, you can cache the calls perfectly."
+
+"httpbin.org throughout this introduction. It accepts many types of http request and returns json that describes the data that it received. This makes it easy to see what httr is doing." - httr vignette
+
+"GET() is used by your browser when requesting a page, and POST() is (usually) used when submitting a form to a server. " - httr vignette
+
 ---
-# 
+# Exercise 2.3: access the body of the response  
+
+To do: add `content()` example (and maybe `fromJSON`)
+
+???
+"These are convenient for interactive usage, but if you’re writing an API wrapper, it’s best to parse the text or raw content yourself and check it is as you expect. See the API wrappers vignette for more details." - vignette
+
+---
+class: center, middle
+
+Time to build your own API!
 
 ---
 # Plumber Package
@@ -157,9 +204,10 @@ APIs give these systems a common language via a common interface
 
 
 ---
-# Insurance data science teams are starting build a lot more APIs (with R)!
+# Data science teams are starting build a lot more APIs (with R)!
 Some examples of what they are building include:
 
+To-do: replace w/ manufacturing examples
 - APIs for 3rd parties like brokers & partners
 - Using APIs as a way to deploy models like:
   - Fraud detection 
@@ -171,11 +219,11 @@ Some examples of what they are building include:
 Property and casualty insurance](https://www.ibm.com/downloads/cas/XNMBM5BL)
 
 ---
-# Lemonade Insurance API Example  
+#   API Example 1
 ![](images/lemonade_api.png)
 
 ---
-# Zillow Insurance API Example  
+# API Example 2
 ![](images/zillow_api.png)
 
 ---
@@ -184,13 +232,35 @@ Property and casualty insurance](https://www.ibm.com/downloads/cas/XNMBM5BL)
 ![](images/before_now.png)
 
 ---
-# Demo time!  
+# Practice time!  
 Follow these 5 steps to create your first Plumber API:
   1. write an R function
   2. install plumber
   3. add special comments
   4. test it / try it out
   5. deploy it
+  
+  
+---
+# Step 1: write an R function
+
+```{r}
+function(x, y) {
+  as.numeric(x) + as.numeric(y)
+}
+```
+
+Save it as `plumber.R`, the conventional name for a plumber API file.
+
+---
+# Step 2: add special comments
+
+```{r}
+function(x, y) {
+  as.numeric(x) + as.numeric(y)
+}
+```
+
 
 ---
 # Plumber docs, examples, and videos  
