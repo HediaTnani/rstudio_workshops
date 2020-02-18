@@ -1,5 +1,5 @@
 ---
-title: "How to work with and build APIs in R"
+title: "Calling and Building APIs in R"
 author: "Hadrien Dykiel & Alex Gold"
 date: "2/13/2020"
 output: xaringan::moon_reader
@@ -209,7 +209,7 @@ Convert your R code into a REST API!
 Some examples of what they are building include:
 
 To-do: replace w/ manufacturing examples
-- APIs for 3rd parties like brokers & partners
+- APIs for 3rd parties like partners & dealerships
 - Using APIs as a way to deploy models like:
   - Fraud detection 
   - Pricing / Rating
@@ -280,12 +280,25 @@ Click on "Run API" button or `plumb(file='plumber.R')$run()`
 ???
 "The Swagger UI is an open source project to visually render documentation for an API defined with the OpenAPI (Swagger) Specification. Swagger UI lets you visualize and interact with the API’s resources " - [swagger.io](https://swagger.io/tools/swagger-ui/download/)
 
+
+
+
 ---
 # Resources to learn more about Plumber
 - Slides & example scripts from today's screenshare: https://github.com/hdykiel/plumber-demo
 - Plumber website: https://www.rplumber.io/
 - James' [rstudio::conf 2019 Plumber talk](https://resources.rstudio.com/rstudio-conf-2019/democratizing-r-with-plumber-apis) (2020 presentation available soon!)
 - e-mail me at Hadrien@rstudio.com with any questions
+
+---
+class: center, middle
+
+# Bonus
+
+---
+# Case Study #1   
+A Shiny application has some long running queries (> 1 minute). Application users have to wait extended periods for the application to load, especially when multiple users are accessing the app simultaneously.
+
 
 
 ---

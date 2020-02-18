@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>How to work with and build APIs in R</title>
+    <title>Calling and Building APIs in R</title>
     <meta charset="utf-8" />
     <meta name="author" content="Hadrien Dykiel &amp; Alex Gold" />
     <link href="xarigan_slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
@@ -11,14 +11,14 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# How to work with and build APIs in R
+# Calling and Building APIs in R
 ### Hadrien Dykiel &amp; Alex Gold
 ### 2/13/2020
 
 ---
 
 
-# APIs
+# What is an API?
 
 - Stands for **Application Programming Interface**
 - APIs are used to **transfer information** between applications/programs
@@ -28,6 +28,15 @@ class: center, middle, inverse, title-slide
 
 ???
 "APIs are how weather forecast data is shared from a reputable source like the National Weather Service to hundreds of software apps that specialize in its presentation." Brenda Jin
+
+---
+# APIs provide a common interface other software can interact with
+
+![](images/rest_api.png)
+???
+APIs give these systems a common language via a common interface
+"IT org not set up to incorporate R models" - common challenge
+
 
 ---
 # You call APIs by making "requests"  
@@ -210,25 +219,18 @@ class: center, middle
 Time to build your own API!
 
 ---
-# Plumber Package
+# What is Plumber?
 Convert your R code into a REST API!  
 
 ![](images/plumber.png)
 
----
-# APIs provide a common interface other software can interact with
-
-![](images/rest_api.png)
-???
-APIs give these systems a common language via a common interface
-"IT org not set up to incorporate R models" - common challenge
-
 
 ---
-# Insurance data science teams are starting build a lot more APIs (with R)!
+# Data science teams are starting build a lot more APIs (with R)!
 Some examples of what they are building include:
 
-- APIs for 3rd parties like brokers &amp; partners
+To-do: replace w/ manufacturing examples
+- APIs for 3rd parties like partners &amp; dealerships
 - Using APIs as a way to deploy models like:
   - Fraud detection 
   - Pricing / Rating
@@ -239,11 +241,11 @@ Some examples of what they are building include:
 Property and casualty insurance](https://www.ibm.com/downloads/cas/XNMBM5BL)
 
 ---
-# Lemonade Insurance API Example  
+#   API Example 1
 ![](images/lemonade_api.png)
 
 ---
-# Zillow Insurance API Example  
+# API Example 2
 ![](images/zillow_api.png)
 
 ---
@@ -252,29 +254,91 @@ Property and casualty insurance](https://www.ibm.com/downloads/cas/XNMBM5BL)
 ![](images/before_now.png)
 
 ---
-# Demo time!  
-Follow these 5 steps to create your first Plumber API:
+# Practice time!  
+Follow these 3 steps to create your first Plumber API:
   1. write an R function
-  2. install plumber
-  3. add special comments
-  4. test it / try it out
-  5. deploy it
+  2. add special comments
+  3. test it / try it out
+
+  
+  
+---
+# Step 1: write an R function
+
+
+```r
+function(x, y) {
+  as.numeric(x) + as.numeric(y)
+}
+```
+
+```
+## function(x, y) {
+##   as.numeric(x) + as.numeric(y)
+## }
+```
+
+Save it as `plumber.R`, the conventional name for a plumber API file.
 
 ---
-# Plumber docs, examples, and videos  
+# Step 2: add special comments
+
+
+```r
+library(plumber)
+
+#* @apiTitle My First Plumber API
+
+#* My API endpoint description: add 2 numbers together!
+#* @param x Value 1
+#* @param y Value 2
+#* @get /echo
+function(x, y) {
+  as.numeric(x) + as.numeric(y)
+}
+```
+
+```
+## function(x, y) {
+##   as.numeric(x) + as.numeric(y)
+## }
+```
+
+???
+"Unless instructed otherwise, Plumber will attempt to render whatever your endpoint function returns as JSON. However, you can specify alternative “serializers” which instruct Plumber to render the output as some other format such as HTML (@html), PNG (@png), or JPEG (@jpeg)."(Plumber Docs)(https://www.rplumber.io/docs/quickstart.html#specifying-the-inputs)
+
+---
+#Step 3: try it out (using Swagger)  
+
+Click on "Run API" button or `plumb(file='plumber.R')$run()`
+
+???
+"The Swagger UI is an open source project to visually render documentation for an API defined with the OpenAPI (Swagger) Specification. Swagger UI lets you visualize and interact with the API’s resources " - [swagger.io](https://swagger.io/tools/swagger-ui/download/)
+
+
+
+
+---
+# Resources to learn more about Plumber
 - Slides &amp; example scripts from today's screenshare: https://github.com/hdykiel/plumber-demo
 - Plumber website: https://www.rplumber.io/
 - James' [rstudio::conf 2019 Plumber talk](https://resources.rstudio.com/rstudio-conf-2019/democratizing-r-with-plumber-apis) (2020 presentation available soon!)
 - e-mail me at Hadrien@rstudio.com with any questions
 
 ---
-# Please take the survey:
+class: center, middle
 
-https://forms.gle/2M14gSedF9khyzTE7
+# Bonus
+
+---
+# Use Case #1   
+A Shiny application has some long running queries (&gt; 1 minute). Application users have to wait extended periods for the application to load, especially when multiple users are accessing the app simultaneously.
 
 ---
 # Appendix    
 - These slides were created with `rmarkdown` and `xaringan`. To learn more about the `xaringan` package, check out Alision's slides from her rstudio::conf 2019 workshop https://arm.rbind.io/slides/xaringan.html
+
+- Please take the survey: https://forms.gle/2M14gSedF9khyzTE7
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
