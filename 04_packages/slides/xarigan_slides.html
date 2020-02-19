@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Building Your Own R Packages</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Hadrien Dykiel &amp; Alex Gold" />
+    <link href="xarigan_slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="xarigan_slides_files/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Building Your Own R Packages
+### Hadrien Dykiel &amp; Alex Gold
+### 2/26/2020
+
+---
+
+
+
+```r
+library(ggplot2)
+library(magrittr)
+```
+
+
+# Building Packages in R
+
+.left-column[
+![R Packages Book](images/r-pkg-book.png)
+]
+
+.right-column[
+For more on building packages: http://r-pkgs.had.co.nz/ (google: `R packages`)
+
+If you want **A LOT** of detail: https://cran.r-project.org/doc/manuals/R-exts.html#Creating-R-packages
+]
+
+---
+
+# Building R Packages
+.pull-left[
+### What We'll Cover
+- Why write an R package?
+- General Structure of R Packages
+- Writing Code and Documentation
+- Writing Tests
+- Installing/Distributing Private Packages
+]
+
+--
+
+.pull-right[
+### What We Won't
+- Metadata Files (`DESCRIPTION`)
+- Versioning/Release Strategies
+- Inclusions: data, other code
+- Vignettes
+]
+
+---
+
+# Why Write an R Package?
+1. Share code with others
+2. Share code with yourself
+3. Make it easy to find function documentation
+4. Disentangle dependencies
+
+Some References:
+
+[R Bnb](https://medium.com/airbnb-engineering/using-r-packages-and-education-to-scale-data-science-at-airbnb-906faa58e12d)
+
+[Etsy](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/)
+
+---
+# What should go in an (internal) R Package?
+.left-column[ 
+
+**Data Access functions**
+
+]
+
+.right-column[
+```
+db &lt;- DBI::dbConnect(
+  odbc::odbc(), 
+  Driver = "postgresql", 
+  Server = "prod.db.jd_db.com", 
+  Port = "5432", 
+  Database = "postgres", 
+  UID = "alex", 
+  PWD = .rs.askForSecret("postgresql 5396", "Password", "Database password:"), 
+  BoolsAsChar = "")
+```
+vs 
+```
+db &lt;- jd_con("prod")
+```
+
+]
+
+---
+
+# What should go in an (internal) R Package?
+- Reference Data Sets (or deploy to RStudio Connect)
+- Standard Plotting Functions
+- Special Analytical Functions
+- Report Templates
+
+--
+.center[
+
+
+**Talk with a neighbor!**
+
+
+]
+
+---
+
+# R Package Structure
+
+Let's make one and explore:
+
+**Option 1:** `devtools::create()`
+
+**Option 2:** In the RStudio IDE
+
+--
+
+Things you need to edit:
+- `R/`: This is where R code goes.
+  - 1 &lt; `n_files` &lt; `n_functions`
+- `DESCRIPTION`: Package Metadata
+
+---
+
+# Writing Code and Documentation 
+
+.left-column[
+These two go together.
+]
+
+--
+
+.right-column[
+R documentation is stored as `.Rd` files in the `man/`&lt;sup&gt;1&lt;/sup&gt; directory.
+
+It looks like this
+```
+\name{add}
+\alias{add}
+\title{Add together two numbers}
+\usage{
+add(x, y)
+}
+\arguments{
+  \item{x}{A number}
+
+  \item{y}{A number}
+}
+...
+```
+]
+
+.footnote[
+(1) Short for manual.
+]
+---
+
+class: center
+# 🤮
+
+---
+
+# Writing Code and Documentation: Easy Mode
+
+With the [Roxygen2](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html)&lt;sup&gt;1&lt;/sup&gt; package:
+
+1. You write some specially-formatted comments.
+2. R writes the `.Rd` + `NAMESPACE` files for you.
+3. R displays `.Rd` as comments when you type `?command`
+
+--
+
+```
+#' Add together two numbers
+#'
+#' @param x A number
+#' @param y A number
+#' @return The sum of \code{x} and \code{y}
+#' @examples
+#' add(1, 1)
+#' add(10, 1)
+add &lt;- function(x, y) {
+  x + y
+}
+```
+]
+
+.footnote[
+(1) Dunno what happened to Roxygen1...
+]
+
+---
+
+# Let's create a Function
+
+Let's actually write the add function.
+
+--
+
+1. Create a regular `.R` file in `R/`
+2. Write an R function
+3. `Code` &gt; ` Insert Roxygen Skeleton`
+ - Fill Out
+4. `devtools::document()`
+
+---
+# What's in Roxygen?
+
+Note special comment characters `#'`
+
+First line is title, can include more description in second paragraph.
+
+- `@param` [var] parameter(s), must be in function signature (multiple w/ commas, no spaces)
+  - recommend mentioning required type, and defaults
+- `@return` what does it return, prose?
+- `@export` ...we'll get to it...
+- `@examples` examples of the function, important! Can run in line.
+
+--
+
+## Helpful Bonus Tags
+- `@inherit source_fn` - inherit all docs from `source_fn`
+- `@inherit source_fn return details` - inherit named docs from `source_fn`
+- `@inheritParams source_fn` - inherit parameter documentation from `source_fn`
+
+---
+
+*Exercise:*
+- Write `times_two`
+  - `times_two(x) = x * 2`
+- Document with `Roxygen`
+- Run `devtools::document()`
+- Try `?times_two`
+
+---
+
+# Making Functions Available
+
+If `@export` used in Roxygen skeleton - normal function:
+- Available using `myPkg::fun` or after `library(myPkg)`
+
+If not, available only to other functions in the package, or by calling `myPkg:::fun`.
+
+--
+
+* Check `NAMESPACE` of your package.
+
+---
+
+# Using Internal Functions
+
+*Exercise:*
+
+1. Write a `times` function, not exported
+  - `times(x, y) = x * y`
+2. Refactor `times_two` to use `times`
+3. Write a `times_three` function using `times`
+  - `times_three(x) = x * 3`
+  - Use `inerit` to write the documentation
+4. Run `devtools::document()`
+5. Check out `?times_three` and `NAMESPACE` (Where's `times`?)
+
+---
+
+
+---
+
+# Writing Tests
+
+- Fewer Bugs -- describe what you mean
+- Better code structure
+- Easier Restarts
+- Won't break when you update
+
+--
+
+## Levels of Testing
+- Level 1: Run Examples 
+  - Example-Driven Development
+- Level 2: Use a testing framework (`testthat`)
+- Level 3: Adopt a CI automated testing framework (not covered today)
+
+--- 
+
+# Using Testthat
+https://testthat.r-lib.org/
+- `usethis::use_testthat`: set up testing framework
+- `usethis::use_test`: write a specific test
+- `devtools::test` - run tests
+- `testthat::expect_...`
+  - Different equalities `?expect_equal`
+  
+Try:
+```
+l &lt;- list(a = 1:5)
+class(l) &lt;- "special_list"
+expect_equal(l, list(a = 1:5))
+expect_equivalent(l, list(a = 1:5))
+```
+---
+
+# Installing/Distributing Packages
+
+Push it to git
+
+- Serve via RSPM (build on commits or tags), install with `install.packages`
+- Serve straight from git, install with `remotes::install_git`/`remotes::install_github`
+
+OR
+
+- Send people source `remotes::install_local` 🤮
+
+---
+# Appendix    
+- These slides were created with `rmarkdown` and `xaringan`. To learn more about the `xaringan` package, check out Alision's slides from her rstudio::conf 2019 workshop https://arm.rbind.io/slides/xaringan.html
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create();
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
