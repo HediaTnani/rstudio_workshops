@@ -1,0 +1,8 @@
+default:
+  driver: "PostgreSQL"
+  server: "localhost"
+  uid: "rstudio_prod"
+  pwd: "prod_user"
+  port: 5432
+  database: "postgres"
+  
