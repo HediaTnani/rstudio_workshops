@@ -12,21 +12,51 @@ output: html_document
 
 ```{r}
 library(httr)
-GET("http://httpbin.org/get")
+
+# make request and save response
+resp <- GET("http://httpbin.org/get")
+
 ```
 
 
 - print the response object
 
+```{r}
+# print response
+print(resp)
+
+# print request & response msgs w/ verbose() option
+GET("http://httpbin.org/get", verbose())
+```
+
+
 - pull out important parts of the response with helper functions like `status_code()` and `headers()`
+```{r}
+# check response status code
+status_code(resp) # method 1
+http_status(resp) # method 2
+
+# print all response headers
+headers(resp)
+
+# check response type
+http_type(resp)
+
+```
+
 
 - access the body of the request using `content()`
+
+```{r}
+content(resp)
+```
+
 
 ???
 "HTTP methods like GET, POST, UPDATE, and DELETE inform the server about the action to be performed. Different HTTP methods invoked on the same URL provide different functionality..."
 
 "Use GET for reading resources.  GET requests never, ever change the state of the resource. They have no side effect; the GET method has a read-only semantic. GET is idempotent. Consequently, you can cache the calls perfectly."
 
-"httpbin.org throughout this introduction. It accepts many types of http request and returns json that describes the data that it received. This makes it easy to see what httr is doing." - httr vignette
+"httpbin.org ... accepts many types of http request and returns json that describes the data that it received. This makes it easy to see what httr is doing." - httr vignette
 
 "GET() is used by your browser when requesting a page, and POST() is (usually) used when submitting a form to a server. " - httr vignette

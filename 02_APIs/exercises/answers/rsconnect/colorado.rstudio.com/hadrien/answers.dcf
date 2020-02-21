@@ -1,0 +1,13 @@
+name: answers
+title: answers
+username: hadrien
+account: hadrien
+server: colorado.rstudio.com
+hostUrl: https://colorado.rstudio.com/rsc/__api__
+appId: 4412
+bundleId: 34242
+url: https://colorado.rstudio.com/rsc/content/4412/
+when: 1582066715.64919
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: calling_plumber_api.Rmd|httr_example.Rmd|plumber_api_example.R

@@ -1,7 +1,7 @@
 ---
 title: "Calling and Building APIs in R"
 author: "Hadrien Dykiel & Alex Gold"
-date: "2/13/2020"
+date: "2/26/2020"
 output: xaringan::moon_reader
 ---
 
@@ -23,6 +23,29 @@ output: xaringan::moon_reader
 ???
 APIs give these systems a common language via a common interface
 "IT org not set up to incorporate R models" - common challenge
+
+---
+# Where to discover new web APIs  
+
+![](https://www.programmableweb.com/sites/default/files/pw-logo.png)
+
+
+
+Programmable Web's [API Directory](https://www.programmableweb.com/category/all/apis) is "where developers can search for APIs to include in their next software development project"
+
+---
+# John Deere APIs  
+![](images/jd_apis.png)
+
+
+---
+# Where to discover new web APIs  
+![](https://www.google.com/logos/doodles/2015/googles-new-logo-5078286822539264.3-hp2x.gif)
+
+---
+class: center, middle
+
+# First, let's make some API calls  
 
 
 ---
@@ -53,6 +76,8 @@ GET http://www.w3.org/pub/WWW/TheProject.html HTTP/1.1
 
 https:://api-endpoint.org/api/rest_v1/resource_name?query1=value1&query2=value2
 
+"Web developers, or webmasters, rarely craft these textual HTTP messages themselves: software, a Web browser, proxy, or Web server, perform this action." (https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages)
+
 
 ---
 # ... and the API responds with a "response"  
@@ -70,7 +95,7 @@ R, like other programming languages, has some great tooling for working with the
 
 
 ---
-# Exercise 2.1: make an API call (with your web browser)  
+# Exercise 2.1: make an API call with your web browser (4 mins)  
 
 - Open your web browser
 
@@ -99,6 +124,11 @@ to-do: verify inspect process w/ other web browsers. Increase font size + spacin
 ???
 The URL, also referred to as the endpoint, is how you access the API resource you’re looking for. In addition to the path to the API resource, you may also tack on some query parameters which allow you to modify your request for different key-value pairs. Query parameters are added at the end of your URL like so: https:://api-endpoint.org/api/rest_v1/resource_name?query1=value1&query2=value2.
 Or the API may use Path Variables instead, in which case your HTTP request would look something like this: https::/api-endpoint.org/api/rest_v1/rescource_name/query1/value1
+
+---
+# Dealing with large responses  
+
+Pagination.
 
 
 ---
@@ -141,7 +171,7 @@ API clients are software libraries in various languages, including R, that make 
 ---
 class: center, middle
 
-No API client? No problem!
+# No API client? No problem!
 
 ---
 # `httr` makes http easy
@@ -159,13 +189,13 @@ httr is organised around the six most common http verbs: GET(), PATCH(), POST(),
 **Details**  
 Each request returns a response() object which provides easy access to status code, cookies, headers, timings, and other useful info. The content of the request is available as a raw vector (content()), character vector (text_content()), or parsed into an R object (parsed_content()), currently for html, xml, json, png and jpeg).  
 
--
+--
 
 Requests can be modified by various config options like set_cookies(), add_headers(), authenticate(), use_proxy(), verbose(), and timeout()
 
 
 ---
-# Exercise 2.2: make an API call with `httr::GET()`
+# Exercise 1: make an API call with `httr::GET()`
 
 - Make a request by calling `httr::GET()` with the URL http://httpbin.org/get
 
@@ -185,17 +215,26 @@ Requests can be modified by various config options like set_cookies(), add_heade
 "GET() is used by your browser when requesting a page, and POST() is (usually) used when submitting a form to a server. " - httr vignette
 
 ---
-# Exercise 2.3: access the body of the response  
+# Exercise 2: access the body of the response  
 
 To do: add `content()` example (and maybe `fromJSON`)
 
 ???
 "These are convenient for interactive usage, but if you’re writing an API wrapper, it’s best to parse the text or raw content yourself and check it is as you expect. See the API wrappers vignette for more details." - vignette
 
+
+---
+# What you've learned so far  
+
+- what APIs are and how they work  
+- how to use APIs as data sources with...
+  - an API client
+  - the `httr` package
+
 ---
 class: center, middle
 
-Time to build your own API!
+# Time to build your own API!
 
 ---
 # What is Plumber?
@@ -208,8 +247,8 @@ Convert your R code into a REST API!
 # Data science teams are starting build a lot more APIs (with R)!
 Some examples of what they are building include:
 
-To-do: replace w/ manufacturing examples
 - APIs for 3rd parties like partners & dealerships
+
 - Using APIs as a way to deploy models like:
   - Fraud detection 
   - Pricing / Rating
@@ -231,6 +270,11 @@ Property and casualty insurance](https://www.ibm.com/downloads/cas/XNMBM5BL)
 # Plumber makes it easier, faster, and cheaper  
 
 ![](images/before_now.png)
+
+
+---
+# Exercise (4 mins)
+In groups of 2 or 3, brainstorm some of the ways you could use plumber. Think of any future, current, or past project you've worked on.
 
 ---
 # Practice time!  
@@ -280,15 +324,46 @@ Click on "Run API" button or `plumb(file='plumber.R')$run()`
 ???
 "The Swagger UI is an open source project to visually render documentation for an API defined with the OpenAPI (Swagger) Specification. Swagger UI lets you visualize and interact with the API’s resources " - [swagger.io](https://swagger.io/tools/swagger-ui/download/)
 
+---
+# Exercise: create your first Plumber API (7 minutes)  
+
+1) write an R function and save the file as `plumber.R`  
+
+2) add special comments  
+
+3) click "run API" button and explore your API via the Swagger GUI
+
+Stuck? Check out www.rplumber.io/docs
 
 
 
 ---
+# Response types  
+
+By default, Plumber serializes objects into JSON via the jsonlite R package. However, there are a variety of other serializers that are built in to the package.
+
+--
+
+Annotation 	Content Type	Description/References
+@json	application/json	jsonlite::toJSON()
+@html	text/html; charset=utf-8	Passes response through without any additional serialization
+@jpeg	image/jpeg	jpeg()
+@png	image/png	png()
+@serializer htmlwidget	text/html; charset=utf-8	htmlwidgets::saveWidget()
+@serializer unboxedJSON	application/json	jsonlite::toJSON(unboxed=TRUE)
+
+---
+# Exercise: return an image
+
+
+---
+# Hosting
+---
 # Resources to learn more about Plumber
-- Slides & example scripts from today's screenshare: https://github.com/hdykiel/plumber-demo
+- Slides & example scripts from today's screenshare: https://github.com/hdykiel/workshop_february_2020
 - Plumber website: https://www.rplumber.io/
 - James' [rstudio::conf 2019 Plumber talk](https://resources.rstudio.com/rstudio-conf-2019/democratizing-r-with-plumber-apis) (2020 presentation available soon!)
-- e-mail me at Hadrien@rstudio.com with any questions
+- e-mail Katie.Masiello or Hadrien@rstudio.com with any questions
 
 ---
 class: center, middle
@@ -298,6 +373,12 @@ class: center, middle
 ---
 # Case Study #1   
 A Shiny application has some long running queries (> 1 minute). Application users have to wait extended periods for the application to load, especially when multiple users are accessing the app simultaneously.
+
+- as the Shiny dev, what can you do to indentify performance bottlenecks?
+- what is one way that plumber can help?
+
+???
+https://kellobri.github.io/shiny-prod-book/alternatives-to-shiny.html
 
 
 

@@ -1,0 +1,13 @@
+name: my_first_plumber_api
+title: My First Plumber API
+username: hadrien
+account: hadrien
+server: colorado.rstudio.com
+hostUrl: https://colorado.rstudio.com/rsc/__api__
+appId: 4411
+bundleId: 34268
+url: https://colorado.rstudio.com/rsc/content/4411/
+when: 1582217051.78733
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 01_httr_package.Rmd|calling_my_plumber_api.Rmd|plumber_api_example.R

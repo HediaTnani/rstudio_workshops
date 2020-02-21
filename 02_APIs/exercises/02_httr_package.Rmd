@@ -1,0 +1,61 @@
+---
+title: "Exercise 2.2"
+author: "Hadrien@rstudio.com"
+date: "2/18/2020"
+output: html_document
+---
+
+
+# Exercise 2.2: make an API call with `httr::GET()`
+
+- Make a request by calling `httr::GET()` with the URL http://httpbin.org/get
+
+```{r}
+library(httr)
+
+# make request and save response
+resp <- ____("http://httpbin.org/get")
+
+```
+
+
+- print the response object
+
+```{r}
+# print response (option 1)
+________
+
+# print request & response msgs w/ verbose (option 2)
+GET("http://httpbin.org/get", verbose())
+```
+
+
+- pull out important parts of the response with helper functions like `status_code()` and `headers()`
+```{r}
+# check response status code
+_________(resp) 
+
+# print all response headers
+______(resp)
+
+# check response type
+_______(resp)
+
+```
+
+
+- access the body of the request using `content()`
+
+```{r}
+______(resp)
+```
+
+
+???
+"HTTP methods like GET, POST, UPDATE, and DELETE inform the server about the action to be performed. Different HTTP methods invoked on the same URL provide different functionality..."
+
+"Use GET for reading resources.  GET requests never, ever change the state of the resource. They have no side effect; the GET method has a read-only semantic. GET is idempotent. Consequently, you can cache the calls perfectly."
+
+"httpbin.org ... accepts many types of http request and returns json that describes the data that it received. This makes it easy to see what httr is doing." - httr vignette
+
+"GET() is used by your browser when requesting a page, and POST() is (usually) used when submitting a form to a server. " - httr vignette
