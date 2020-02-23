@@ -1,0 +1,41 @@
+# Exercise 1: make an API call with your web browser. Are you able to find the API request (URL, Method, Headers, ect.) and response (headers, response body, etc.) ?
+
+## Chrome
+
+- Open your web browser
+
+- Right-click and select "Inspect"
+
+- Go the to "Network tab"
+- Try any of these from your web browser:
+  - Execute a google search
+  - Navigate to the URL https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Barack_Obama/monthly/2018010100/2018123100
+  
+  
+## Firefox
+Mozilla Firefox has two ways to open its inspection tool, called Inspector:
+
+Right-click an element on the web page, then select Inspect Element.
+From the Firefox menu bar, select Tools > Web Developer > Inspector/
+
+## Internet Explorer
+A similar inspect element tool, which is accessed by enabling the Developer Tools, is available in Internet Explorer. To enable Developer Tools, press F12. Or, go to the Tools menu and select Developer Tools.
+
+To display the Tools menu, press Alt+X.
+
+To inspect elements on a web page, right-click the page, then select Inspect Element. From the Internet Explorer Select element tool, select any page element to see the HTML or CSS markup. You can also disable or enable element highlighting while browsing through the DOM Explorer.
+
+## Results
+
+Wikipedia API:
+Request URL: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Barack_Obama/monthly/2018010100/2018123100
+Request Method: GET
+Status Code: 200 
+Response Body: {"items":[{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018010100","access":"all-access","agent":"all-agents","views":917974},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018020100","access":"all-access","agent":"all-agents","views":835876},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018030100","access":"all-access","agent":"all-agents","views":708039},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018040100","access":"all-access","agent":"all-agents","views":716941},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018050100","access":"all-access","agent":"all-agents","views":669673},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018060100","access":"all-access","agent":"all-agents","views":560357},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018070100","access":"all-access","agent":"all-agents","views":636809},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018080100","access":"all-access","agent":"all-agents","views":744470},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018090100","access":"all-access","agent":"all-agents","views":727487},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018100100","access":"all-access","agent":"all-agents","views":694747},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018110100","access":"all-access","agent":"all-agents","views":934399},{"project":"en.wikipedia","article":"Barack_Obama","granularity":"monthly","timestamp":"2018120100","access":"all-access","agent":"all-agents","views":980997}]}
+
+Google Search API:
+Request URL: https://www.google.com/search?q=What+is+an+API%3F&oq=What+is+an+API%3F&aqs=chrome..69i57j35i39l2j0l5.5167j1j4&sourceid=chrome&ie=UTF-8
+Request Method: GET
+Status Code: 200 
+Response Body: 
+<!doctype html><html itemscope="" itemtype="http://schema.org/SearchResultsPage" lang="en"><head><meta content="/images/branding/googleg/1x/googleg_standard_color_128dp.png" itemprop="image"><meta content="origin" name="referrer"><title>What is an API? - Google Search</title><script nonce="HKUfNILhXhDS75uF071nvw=="...

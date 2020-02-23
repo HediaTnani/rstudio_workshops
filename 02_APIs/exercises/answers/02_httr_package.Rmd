@@ -8,26 +8,18 @@ output: html_document
 
 # Exercise 2.2: make an API call with `httr::GET()`
 
-- Make a request by calling `httr::GET()` with the URL http://httpbin.org/get
+- Make a request by calling `httr::GET()` with the URL https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest
 
 ```{r}
 library(httr)
 
 # make request and save response
-resp <- GET("http://httpbin.org/get")
+url <- "https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest"
+resp <- GET(url)
 
 ```
 
 
-- print the response object
-
-```{r}
-# print response
-print(resp)
-
-# print request & response msgs w/ verbose() option
-GET("http://httpbin.org/get", verbose())
-```
 
 
 - pull out important parts of the response with helper functions like `status_code()` and `headers()`
@@ -45,10 +37,22 @@ http_type(resp)
 ```
 
 
-- access the body of the request using `content()`
+- retrieve the body of the request using `content()`
+
 
 ```{r}
+# let content() guess which output is most appropriate
 content(resp)
+
+# retrieve as a character vector
+content(resp, as = "text")
+
+```
+
+```{r}
+# convert character vector to R dataframe
+library(jsonlite)
+fromJSON(content(resp, as = "text"))
 ```
 
 

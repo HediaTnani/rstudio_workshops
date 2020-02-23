@@ -9,13 +9,15 @@ output: html_document
 library(httr)
 
 # save to env environment
-connectAPIKey <- "enter key"
+connectAPIKey <- Sys.getenv("CONNECT_API_KEY")
 
 # make an API call
 resp <- GET("https://colorado.rstudio.com/rsc/content/4411/sum?y=2&x=5",
     add_headers(Authorization = paste0("Key ", connectAPIKey)),
     verbose())
 
+# print response body
+content(resp)
 
 ```
 

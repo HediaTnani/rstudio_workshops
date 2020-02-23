@@ -95,7 +95,7 @@ R, like other programming languages, has some great tooling for working with the
 
 
 ---
-# Exercise 2.1: make an API call with your web browser (4 mins)  
+# Exercise 1: make an API call with your web browser (4 mins)  
 
 - Open your web browser
 
@@ -195,15 +195,16 @@ Requests can be modified by various config options like set_cookies(), add_heade
 
 
 ---
-# Exercise 1: make an API call with `httr::GET()`
+# Exercise 2: make an API call with `httr::GET()`  
+## (5 mins)
 
-- Make a request by calling `httr::GET()` with the URL http://httpbin.org/get
-
-- print the response object
+- Make a request by calling `httr::GET()` with the URL https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest
 
 - pull out important parts of the response with helper functions like `status_code()` and `headers()`
 
-- access the body of the request using `content()`
+- retrieve the contents of the request as text using `content(x, as = "text")`
+
+- convert the character vector to a dataframe using `jsonlite::fromJSON()`
 
 ???
 "HTTP methods like GET, POST, UPDATE, and DELETE inform the server about the action to be performed. Different HTTP methods invoked on the same URL provide different functionality..."
@@ -213,14 +214,6 @@ Requests can be modified by various config options like set_cookies(), add_heade
 "httpbin.org throughout this introduction. It accepts many types of http request and returns json that describes the data that it received. This makes it easy to see what httr is doing." - httr vignette
 
 "GET() is used by your browser when requesting a page, and POST() is (usually) used when submitting a form to a server. " - httr vignette
-
----
-# Exercise 2: access the body of the response  
-
-To do: add `content()` example (and maybe `fromJSON`)
-
-???
-"These are convenient for interactive usage, but if you’re writing an API wrapper, it’s best to parse the text or raw content yourself and check it is as you expect. See the API wrappers vignette for more details." - vignette
 
 
 ---
