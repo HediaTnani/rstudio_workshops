@@ -1,0 +1,120 @@
+---
+title: "Deploying Models with R"
+author: "Hadrien Dykiel & Alex Gold"
+date: "2/13/2020"
+output: xaringan::moon_reader
+---
+
+# Deploying Models: The Problem
+
+1. Create a great model!
+2. Want to use it in a production context.
+3. Need to **deploy** the model.
+
+-- 
+
+.center[But how? 😕]
+
+--
+Some Problems:
+
+- Where do people go to get model predictions?
+- How do I make sure the right people have access?
+- Where do I save the model?
+
+--
+
+Pins + Plumber on RStudio Connect!
+
+# Intro to the Pins Package
+
+![Pins Diagram](~/rstudio/workshop_february_2020/03_model_deploy/images/pins_diagram.png)
+
+# Deploying a Model in a Plumber API
+
+## Steps
+
+1. Build model.
+2. Pin model to RStudio Connect.
+3. Build Plumber API to take input data.
+4. Deploy API to RStudio Connect.
+
+---
+
+## Build Model
+
+```{r}
+mod <- glm(mpg ~ cyl + hp + disp, data = mtcars)
+# butcher?
+```
+
+--
+
+Doing predictions normally:
+```{r}
+(new_dat <- tibble::tribble(
+  ~ cyl,   ~hp,   ~disp,
+  6,        90,    180, 
+  8,        120,   200
+))
+
+dplyr::mutate(new_dat, mpg = predict(mod, newdata = new_dat))
+
+```
+
+--
+
+Wrap it into a function
+```{r}
+get_preds <- function(cyl, hp, disp) {
+  new_dat <- data.frame(
+    cyl = cyl, 
+    hp = hp, 
+    disp = disp
+  )
+  
+  predict(mod, newdata = new_dat)
+}
+
+get_preds(c(6, 8), c(90, 120), c(180, 200))
+```
+
+---
+# Put it in a Plumber API
+
+*Exercise!*
+
+--
+
+Wait, it's broken! 😬
+
+---
+
+Put the model into a pin.
+
+```
+pins::board_register("rsconnect", server = "", key = Sys.getenv("RSCONNECT_API_KEY"))
+pins::pin(mod, "My Model", "A model to be deployed in a plumber API", "rsconnect")
+```
+Change the plumber API to pull from the pin.
+
+
+---
+# Scaling RSC
+
+Runtime Settings
+
+* `Max Processes` - limit on how many processes of this API
+* `Min Processes` - lower limit (i.e. don't ever fully turn off)
+* `Max Connections Per Process`
+* `Load Factor` - When to scale up next process
+  * Scale Up at: `Max Connections Per Process` * `Load Factor`
+  
+Total Connections Allowed: `Max Processes` * `Max Connections Per Process`
+
+
+---
+# An Alternative: Save Predictions to a Database
+Doing this can be a good alternative to live predictions when the search space is relatively small.
+
+* E.g. We need 1 score per customer. 
