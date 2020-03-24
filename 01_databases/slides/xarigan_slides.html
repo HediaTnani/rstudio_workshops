@@ -19,25 +19,40 @@ class: center, middle, inverse, title-slide
 ---
 
 
-class: center
-
 
 
 
 # Schedule
-## 1. Strategies for Writing Queries
-## 2. Mechanics of Querying Databases
-##  - Connecting
-## - Writing + Sending Queries
-## 3. Deploying to RStudio Connect w/ Live Connections
+## I. Strategies for Writing Queries
+## II. Mechanics of Querying Databases
+ - Connecting
+ - Writing + Sending Queries
+ 
+## III. Deploying to RStudio Connect w/ Live Connections
+---
+
+# First: Get an Instance
+
+* Go to rstd.io/class
+  * Workshop ID: `db_workshop`
+* Click the link to your instance
+* Login to RStudio Server Pro
+  * Username: `db_workshop_user`
+  * Password: `db_workshop_pass`
+  
+--
+&lt;br&gt;&lt;br&gt;
+.center[**Zoom Poll:👍🏻 when you're good to go.**]
+  
 ---
 
 # I. 3 Strategies for Efficient Queries
-1. Sample and Model
-2. Chunk and Pull
-3. Push Compute to Data
---
 
+## 1. Sample and Model
+## 2. Chunk and Pull
+## 3. Push Compute to Data
+--
+&lt;br&gt;&lt;br&gt;
 
 .center[**You don't have to choose just 1! Combine as needed!**]
 ---
@@ -91,6 +106,11 @@ class: center
 ☹️ Maybe your database is slow?
 
 ---
+class: center
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+## Questions on Strategies?
+
+---
 
 # II. The Mechanics
 
@@ -102,8 +122,10 @@ For all of our recommendations on using databases, as well as how-tos:
 
 ## Mechanics: Connecting
 
-R Session -&gt; R Package -&gt; Database Driver -&gt; Database
+.center[
+![Sample and Model](images/db_connect_diagram.png)
 
+]
 ---
 
 ### R Packages: ☂️s
@@ -112,7 +134,7 @@ R Session -&gt; R Package -&gt; Database Driver -&gt; Database
 - "`DBI-compliant`": Back-end that implements DBI API (plays nicely with RStudio)
 
 
-`odbc`: generic option, works with Open Database Connectivity (ODBC) system 
+`odbc`: generic DBI-compliant option, works with Open Database Connectivity (ODBC) system 
 - We provide [pro drivers](https://rstudio.com/products/drivers/) free of charge for popular databases.
 - Microsoft SQL Server, Oracle, PostgreSQL, Amazon Redshift, Amazon Athena, Google BigQuery, Salesforce, Apache Cassandra, Apache Hive, Apache Impala, Teradata, MySQL, IBM Netezza, MongoDB
 - Your database provider may provide an ODBC driver (e.g. SAP Hana).
@@ -130,8 +152,8 @@ DBI::dbConnect(RPostgres::postgres(), ...)
 ```
 Options: `RPostgres`, `RMariaDB`, `RSQLite`, `bigrquery`
 --
-
-**Also Great: Driver + `odbc`/`DBI`**
+&lt;br&gt;&lt;br&gt;
+**Also Great: Driver + `odbc`**
 
 Use `odbc::odbc` w/ system driver on system.
 ```
@@ -139,15 +161,28 @@ DBI::dbConnect(odbc::odbc(), driver = "Postgres", ...)
 ```
 Requires driver `"Postgres"` be configured in `odbcinst.ini`.
 ---
+# Key Takeaways
 
-## Connecting from the RStudio IDE
+If you're not using a database-specific package (`RPostgres`, `RMariaDB`, `RSQLite`, `bigrquery`), 
+you need **2(!)** things.
+
+**1** An R session with `DBI` + `odbc` packages.
+
+**2** A system `odbc` driver, probably configured by a Linux admin. 
+* You get some drivers with RStudio Pro products. 
+* Others may be provided by your database provider.
+
+
+---
+
+## How to Connect from the RStudio IDE
 
 - Connections Pane - can use point-and-click, generates code
 - Code - easier, can be used non-interactively (when deployed)
 
 ---
 
-## Securing Credentials
+## Securing Credentials: Options
 
 #### Use a DSN 
 #### Prompt for Password/Keyring
@@ -167,8 +202,7 @@ dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"    
-## [6] "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
 ```
 
 ```r
@@ -199,7 +233,6 @@ dbDisconnect(con)
 ---
 
 ### Config Package
-Checkout config file in `~/rstudio_workshops/config.yml`
 
 ```r
 cfg &lt;- config::get()
@@ -216,14 +249,13 @@ dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"    
-## [6] "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
 ```
 
 ```r
 dbDisconnect(con)
 ```
-
+*Examine config file in `~/rstudio_workshops/config.yml`*
 ---
 
 ### Environment Variables
@@ -243,8 +275,7 @@ dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"    
-## [6] "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
 ```
 
 ```r
@@ -339,7 +370,7 @@ Add an `output.var` argument to read into R
 `{sql, connection = con, output.var = "dat"}`
 
 If same for all SQL chunks: `knitr::opts_chunk$set(connection = "con")`
-.pull-left[
+
 
 ```sql
 /* SQL Chunk */
@@ -357,12 +388,7 @@ dat
 ## 1     1001          22       1
 ## 2     1002           6       1
 ```
-]
 
-.pull-right[
-
-Can also do entire SQL scripts.
-]
 ---
 
 ### `dbGetQuery`
@@ -375,8 +401,7 @@ DBI::dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"    
-## [6] "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
 ```
 
 ### Send a query
@@ -407,16 +432,17 @@ head(cust, 2)
 ```
 ## # Source:   lazy query [?? x 6]
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   customer_id customer_name customer_phone customer_cc customer_lon customer_lat
-##         &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;              &lt;dbl&gt;        &lt;dbl&gt;
-## 1           1 Marilou Donn… 046-995-9387x… 4054106117…        -122.         37.8
-## 2           2 Aubrey Gulgo… (020)136-2064  6759766520…        -122.         37.7
+##   customer_id customer_name        customer_phone    customer_cc      customer_lon customer_lat
+##         &lt;int&gt; &lt;chr&gt;                &lt;chr&gt;             &lt;chr&gt;                   &lt;dbl&gt;        &lt;dbl&gt;
+## 1           1 Marilou Donnelly DVM 046-995-9387x9542 4054106117540070        -122.         37.8
+## 2           2 Aubrey Gulgowski III (020)136-2064     675976652024423         -122.         37.7
 ```
 --
 
 #### Question
 What is cust? What will I get from `names(cust)`?
 
+**Zoom Poll:**
 1. `customer_id, customer_name, customer_phone, etc`
 2. Something weird 👽
 ---
@@ -457,64 +483,25 @@ cust %&gt;%
 ## FROM retail.customer
 ```
 ]
----
 
-### Under the hood
-Because it's just a reference to a SQL query, I can *keep adding*!
-
-.pull-left[
-
-```r
-q &lt;- cust %&gt;%
-  filter(customer_lon &lt; -122.4463) %&gt;%
-  select(customer_name, customer_phone) %&gt;%
-  head(2)
-```
-]
---
-.pull-right[
-
-```r
-q
-```
-
-```
-## # Source:   lazy query [?? x 2]
-## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   customer_name        customer_phone   
-##   &lt;chr&gt;                &lt;chr&gt;            
-## 1 Marilou Donnelly DVM 046-995-9387x9542
-## 2 Aubrey Gulgowski III (020)136-2064
-```
-
-```r
-show_query(q)
-```
-
-```
-## &lt;SQL&gt;
-## SELECT "customer_name", "customer_phone"
-## FROM retail.customer
-## WHERE ("customer_lon" &lt; -122.4463)
-## LIMIT 2
-```
-]
-
+I could keep adding more if I wanted. This allows `dbplyr` to write the most 
+efficient SQL possible.
 ---
 ### `collect` for an R `data.frame`
 .pull-left[
 
 ```r
-q
+head(q, 3)
 ```
 
 ```
-## # Source:   lazy query [?? x 2]
+## # Source:   lazy query [?? x 1]
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   customer_name        customer_phone   
-##   &lt;chr&gt;                &lt;chr&gt;            
-## 1 Marilou Donnelly DVM 046-995-9387x9542
-## 2 Aubrey Gulgowski III (020)136-2064
+##   today              
+##   &lt;dttm&gt;             
+## 1 2020-03-24 23:23:24
+## 2 2020-03-24 23:23:24
+## 3 2020-03-24 23:23:24
 ```
 
 ```r
@@ -528,15 +515,17 @@ names(q)
 .pull-right[
 
 ```r
-(q &lt;- collect(q))
+q &lt;- collect(q)
+head(q, 3)
 ```
 
 ```
-## # A tibble: 2 x 2
-##   customer_name        customer_phone   
-##   &lt;chr&gt;                &lt;chr&gt;            
-## 1 Marilou Donnelly DVM 046-995-9387x9542
-## 2 Aubrey Gulgowski III (020)136-2064
+## # A tibble: 3 x 1
+##   today              
+##   &lt;dttm&gt;             
+## 1 2020-03-24 23:23:24
+## 2 2020-03-24 23:23:24
+## 3 2020-03-24 23:23:24
 ```
 
 ```r
@@ -544,7 +533,7 @@ names(q)
 ```
 
 ```
-## [1] "customer_name"  "customer_phone"
+## [1] "today"
 ```
 ]
 
@@ -552,23 +541,22 @@ names(q)
 ---
 
 ### Un-Translated Functions
-.pull-left[
 What happens if I put in an R command w/ no SQL equivalent?
 
 ```r
-# Not running because it's an error (and not even an R error!)
 cust %&gt;%
-  mutate(today = Sys.time()) %&gt;%
+  transmute(today = Sys.time()) %&gt;% 
   show_query()
 ```
 
 ```
 ## &lt;SQL&gt;
-## SELECT "customer_id", "customer_name", "customer_phone", "customer_cc", "customer_lon", "customer_lat", Sys.time() AS "today"
+## SELECT Sys.time() AS "today"
 ## FROM retail.customer
 ```
 It just sends the command along - "maybe it's a SQL command?"
-]
+
+If I run this, I get an error, because `Sys.time` is not a Postgres function.
 
 ---
 ### Un-Translated Functions: Option 1/2
@@ -580,14 +568,14 @@ Prefix w/ `!!` (bang-bang)
 ```r
 cust %&gt;%
   mutate(today = !!Sys.Date()) %&gt;%
-  select(customer_id, today) %&gt;%
+  select(today) %&gt;%
   head(3) %&gt;%
   show_query()
 ```
 
 ```
 ## &lt;SQL&gt;
-## SELECT "customer_id", '2020-03-13' AS "today"
+## SELECT '2020-03-24' AS "today"
 ## FROM retail.customer
 ## LIMIT 3
 ```
@@ -597,18 +585,18 @@ cust %&gt;%
 ```r
 cust %&gt;%
   mutate(today = !!Sys.Date()) %&gt;%
-  select(customer_id, today) %&gt;%
+  select(today) %&gt;%
   head(3)
 ```
 
 ```
-## # Source:   lazy query [?? x 2]
+## # Source:   lazy query [?? x 1]
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   customer_id today     
-##         &lt;int&gt; &lt;chr&gt;     
-## 1           1 2020-03-13
-## 2           2 2020-03-13
-## 3           3 2020-03-13
+##   today     
+##   &lt;chr&gt;     
+## 1 2020-03-24
+## 2 2020-03-24
+## 3 2020-03-24
 ```
 ]
 ---
@@ -621,7 +609,7 @@ Use built-in SQL function `now()` for Postgres
 q &lt;- cust %&gt;%
   transmute(today = now())
 
-# Note:
+# Note: not an R function
 tryCatch(now(), error = function(e) e)
 ```
 
@@ -641,9 +629,9 @@ head(q, 3)
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
 ##   today              
 ##   &lt;dttm&gt;             
-## 1 2020-03-13 19:02:21
-## 2 2020-03-13 19:02:21
-## 3 2020-03-13 19:02:21
+## 1 2020-03-24 23:23:24
+## 2 2020-03-24 23:23:24
+## 3 2020-03-24 23:23:24
 ```
 
 ```r
@@ -659,119 +647,26 @@ q  %&gt;%
 ] 
 
 ---
-* THESE WILL ALL MOVE TO THE WORKBOOK *
-### Basic aggregation
+# To The Workbook!
 
-How many records are in the **product** table?
+`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it. 
 
---
+Going to go to breakout rooms to work through it. 
 
+If you run into problems, message me!
 
-```r
-prods &lt;- tbl(con, in_schema("retail", "product"))  
+If you need to refer to these slides, the code is in 
 
-prods %&gt;%
-  tally()
-```
-
-```
-## # Source:   lazy query [?? x 1]
-## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   n      
-##   &lt;int64&gt;
-## 1 30
-```
+`~/rstudio_workshops/01_databases/slides/xarigan_slides.Rmd`
 
 ---
-### Controlling Returns
-What is this object?
+# Deploying
 
-```r
-n_prods &lt;- prods %&gt;% tally()
-```
+If you follow best practices, deploying to RStudio Connect should be seamless!
 
---
+Remember: your content needs to access the database without you.
 
-
-```r
-names(n_prods)
-```
-
-```
-## [1] "src" "ops"
-```
-
-How do I get a real R object?
-
---
-
-
-```r
-n_prods &lt;- collect(n_prods)
-n_prods
-```
-
-```
-## # A tibble: 1 x 1
-##   n      
-##   &lt;int64&gt;
-## 1 30
-```
-
-```r
-names(n_prods)
-```
-
-```
-## [1] "n"
-```
-
----
-
-### Basic aggregation 2
-What is the average customer longitude?  Average length of customer names?
---
-
-
-```r
-cust %&gt;%
-  summarise(
-    avg_cust_lon = mean(customer_lon, na.rm = TRUE),
-    avg_cust_name = mean(str_length(customer_name), na.rm = TRUE)
-  )
-```
-
-```
-## # Source:   lazy query [?? x 2]
-## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   avg_cust_lon avg_cust_name
-##          &lt;dbl&gt;         &lt;dbl&gt;
-## 1        -122.          16.3
-```
-
-How many records are in the **orders** table?
-
-
-What's the most recent date in the **date** table?
-
-
-What is the SQL statement sent to find the date in the table above?
-
-
-
-# III. Deployment to RStudio Connect
-
-Register RStudio Connect Server
-
-- Deploy to: `[http://URL...amazonaws.com]/rsconnect`
-- Username: `john_deere_user`
-- Password: `john_deere_pass`
-- Email: whatever you want (fake ok)
-
----
-
-For the shiny app, will need to add environment variables. 
-
+Shiny may require special attention for performance (see strategies).
 
 ---
 # Appendix
@@ -779,7 +674,9 @@ For the shiny app, will need to add environment variables.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create();
+<script>var slideshow = remark.create({
+"highlightLines": true
+});
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
 });
@@ -818,7 +715,24 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     deleted = true;
   });
-})();</script>
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 (function() {

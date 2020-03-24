@@ -2,12 +2,12 @@
 title: "Working with Databases in R"
 author: 'Alex Gold, Solutions Engineer'
 date: "2020-02-26<br><font size = 3>*Credit: Edgar Ruiz, James Blair*</font>"
-output: 
+output:
   xaringan::moon_reader:
+    nature:
+      highlightLines: true
     css: [default, metropolis, metropolis-fonts]
 ---
-
-class: center
 
 ```{r setup, echo = FALSE, include = FALSE}
 library(DBI)
@@ -19,19 +19,36 @@ knitr::opts_chunk$set(fig.retina = 3, warning = FALSE, message = FALSE)
 
 
 # Schedule
-## 1. Strategies for Writing Queries
-## 2. Mechanics of Querying Databases
-##  - Connecting
-## - Writing + Sending Queries
-## 3. Deploying to RStudio Connect w/ Live Connections
+## I. Strategies for Writing Queries
+## II. Mechanics of Querying Databases
+ - Connecting
+ - Writing + Sending Queries
+ 
+## III. Deploying to RStudio Connect w/ Live Connections
+---
+
+# First: Get an Instance
+
+* Go to rstd.io/class
+  * Workshop ID: `db_workshop`
+* Click the link to your instance
+* Login to RStudio Server Pro
+  * Username: `db_workshop_user`
+  * Password: `db_workshop_pass`
+  
+--
+<br><br>
+.center[**Zoom Poll:👍🏻 when you're good to go.**]
+  
 ---
 
 # I. 3 Strategies for Efficient Queries
-1. Sample and Model
-2. Chunk and Pull
-3. Push Compute to Data
---
 
+## 1. Sample and Model
+## 2. Chunk and Pull
+## 3. Push Compute to Data
+--
+<br><br>
 
 .center[**You don't have to choose just 1! Combine as needed!**]
 ---
@@ -85,6 +102,11 @@ knitr::opts_chunk$set(fig.retina = 3, warning = FALSE, message = FALSE)
 ☹️ Maybe your database is slow?
 
 ---
+class: center
+<br><br><br>
+## Questions on Strategies?
+
+---
 
 # II. The Mechanics
 
@@ -96,8 +118,10 @@ For all of our recommendations on using databases, as well as how-tos:
 
 ## Mechanics: Connecting
 
-R Session -> R Package -> Database Driver -> Database
+.center[
+![Sample and Model](images/db_connect_diagram.png)
 
+]
 ---
 
 ### R Packages: ☂️s
@@ -106,7 +130,7 @@ R Session -> R Package -> Database Driver -> Database
 - "`DBI-compliant`": Back-end that implements DBI API (plays nicely with RStudio)
 
 
-`odbc`: generic option, works with Open Database Connectivity (ODBC) system 
+`odbc`: generic DBI-compliant option, works with Open Database Connectivity (ODBC) system 
 - We provide [pro drivers](https://rstudio.com/products/drivers/) free of charge for popular databases.
 - Microsoft SQL Server, Oracle, PostgreSQL, Amazon Redshift, Amazon Athena, Google BigQuery, Salesforce, Apache Cassandra, Apache Hive, Apache Impala, Teradata, MySQL, IBM Netezza, MongoDB
 - Your database provider may provide an ODBC driver (e.g. SAP Hana).
@@ -124,8 +148,8 @@ DBI::dbConnect(RPostgres::postgres(), ...)
 ```
 Options: `RPostgres`, `RMariaDB`, `RSQLite`, `bigrquery`
 --
-
-**Also Great: Driver + `odbc`/`DBI`**
+<br><br>
+**Also Great: Driver + `odbc`**
 
 Use `odbc::odbc` w/ system driver on system.
 ```
@@ -133,15 +157,28 @@ DBI::dbConnect(odbc::odbc(), driver = "Postgres", ...)
 ```
 Requires driver `"Postgres"` be configured in `odbcinst.ini`.
 ---
+# Key Takeaways
 
-## Connecting from the RStudio IDE
+If you're not using a database-specific package (`RPostgres`, `RMariaDB`, `RSQLite`, `bigrquery`), 
+you need **2(!)** things.
+
+**1** An R session with `DBI` + `odbc` packages.
+
+**2** A system `odbc` driver, probably configured by a Linux admin. 
+* You get some drivers with RStudio Pro products. 
+* Others may be provided by your database provider.
+
+
+---
+
+## How to Connect from the RStudio IDE
 
 - Connections Pane - can use point-and-click, generates code
 - Code - easier, can be used non-interactively (when deployed)
 
 ---
 
-## Securing Credentials
+## Securing Credentials: Options
 
 #### Use a DSN 
 #### Prompt for Password/Keyring
@@ -183,7 +220,6 @@ dbDisconnect(con)
 ---
 
 ### Config Package
-Checkout config file in `~/rstudio_workshops/config.yml`
 ```{r}
 cfg <- config::get()
 con <- dbConnect(
@@ -198,7 +234,7 @@ con <- dbConnect(
 dbListTables(con)
 dbDisconnect(con)
 ```
-
+*Examine config file in `~/rstudio_workshops/config.yml`*
 ---
 
 ### Environment Variables
@@ -281,7 +317,7 @@ Add an `output.var` argument to read into R
 `{sql, connection = con, output.var = "dat"}`
 
 If same for all SQL chunks: `knitr::opts_chunk$set(connection = "con")`
-.pull-left[
+
 ```{sql, connection = con, output.var = "dat"}
 /* SQL Chunk */
 SELECT * FROM retail.orders LIMIT 2;
@@ -291,12 +327,7 @@ SELECT * FROM retail.orders LIMIT 2;
 # r chunk
 dat
 ```
-]
 
-.pull-right[
-
-Can also do entire SQL scripts.
-]
 ---
 
 ### `dbGetQuery`
@@ -326,6 +357,7 @@ head(cust, 2)
 #### Question
 What is cust? What will I get from `names(cust)`?
 
+**Zoom Poll:**
 1. `customer_id, customer_name, customer_phone, etc`
 2. Something weird 👽
 ---
@@ -354,39 +386,21 @@ cust %>%
   dplyr::show_query()
 ```
 ]
----
 
-### Under the hood
-Because it's just a reference to a SQL query, I can *keep adding*!
-
-.pull-left[
-```{r}
-q <- cust %>%
-  filter(customer_lon < -122.4463) %>%
-  select(customer_name, customer_phone) %>%
-  head(2)
-```
-]
---
-.pull-right[
-```{r}
-q
-
-show_query(q)
-```
-]
-
+I could keep adding more if I wanted. This allows `dbplyr` to write the most 
+efficient SQL possible.
 ---
 ### `collect` for an R `data.frame`
 .pull-left[
 ```{r}
-q
+head(q, 3)
 names(q)
 ```
 ]
 .pull-right[
 ```{r}
-(q <- collect(q))
+q <- collect(q)
+head(q, 3)
 names(q)
 ```
 ]
@@ -395,16 +409,15 @@ names(q)
 ---
 
 ### Un-Translated Functions
-.pull-left[
 What happens if I put in an R command w/ no SQL equivalent?
 ```{r}
-# Not running because it's an error (and not even an R error!)
 cust %>%
-  mutate(today = Sys.time()) %>%
+  transmute(today = Sys.time()) %>% 
   show_query()
 ```
 It just sends the command along - "maybe it's a SQL command?"
-]
+
+If I run this, I get an error, because `Sys.time` is not a Postgres function.
 
 ---
 ### Un-Translated Functions: Option 1/2
@@ -415,7 +428,7 @@ Prefix w/ `!!` (bang-bang)
 ```{r}
 cust %>%
   mutate(today = !!Sys.Date()) %>%
-  select(customer_id, today) %>%
+  select(today) %>%
   head(3) %>%
   show_query()
 ```
@@ -424,7 +437,7 @@ cust %>%
 ```{r}
 cust %>%
   mutate(today = !!Sys.Date()) %>%
-  select(customer_id, today) %>%
+  select(today) %>%
   head(3)
 ```
 ]
@@ -437,7 +450,7 @@ Use built-in SQL function `now()` for Postgres
 q <- cust %>%
   transmute(today = now())
 
-# Note:
+# Note: not an R function
 tryCatch(now(), error = function(e) e)
 ```
 ]
@@ -452,83 +465,26 @@ q  %>%
 ] 
 
 ---
-* THESE WILL ALL MOVE TO THE WORKBOOK *
-### Basic aggregation
+# To The Workbook!
 
-How many records are in the **product** table?
+`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it. 
 
---
+Going to go to breakout rooms to work through it. 
 
-```{r}
-prods <- tbl(con, in_schema("retail", "product"))  
+If you run into problems, message me!
 
-prods %>%
-  tally()
-```
+If you need to refer to these slides, the code is in 
+
+`~/rstudio_workshops/01_databases/slides/xarigan_slides.Rmd`
 
 ---
-### Controlling Returns
-What is this object?
-```{r}
-n_prods <- prods %>% tally()
-```
+# Deploying
 
---
+If you follow best practices, deploying to RStudio Connect should be seamless!
 
-```{r}
-names(n_prods)
-```
+Remember: your content needs to access the database without you.
 
-How do I get a real R object?
-
---
-
-```{r}
-n_prods <- collect(n_prods)
-n_prods
-names(n_prods)
-```
-
----
-
-### Basic aggregation 2
-What is the average customer longitude?  Average length of customer names?
---
-
-```{r}
-cust %>%
-  summarise(
-    avg_cust_lon = mean(customer_lon, na.rm = TRUE),
-    avg_cust_name = mean(str_length(customer_name), na.rm = TRUE)
-  )
-```
-
-How many records are in the **orders** table?
-```{r}
-```
-
-What's the most recent date in the **date** table?
-```{r}
-```
-
-What is the SQL statement sent to find the date in the table above?
-```{r}
-```
-
-
-# III. Deployment to RStudio Connect
-
-Register RStudio Connect Server
-
-- Deploy to: `[http://URL...amazonaws.com]/rsconnect`
-- Username: `john_deere_user`
-- Password: `john_deere_pass`
-- Email: whatever you want (fake ok)
-
----
-
-For the shiny app, will need to add environment variables. 
-
+Shiny may require special attention for performance (see strategies).
 
 ---
 # Appendix
