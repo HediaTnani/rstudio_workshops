@@ -1,0 +1,12 @@
+name: customer_app
+title: customer_app
+username: db_workshop_test_user
+account: db_workshop_test_user
+server: ec2-18-222-240-93.us-east-2.compute.amazonaws.com
+hostUrl: http://ec2-18-222-240-93.us-east-2.compute.amazonaws.com/rsconnect/__api__
+appId: 2
+bundleId: 8
+url: http://ec2-18-222-240-93.us-east-2.compute.amazonaws.com/rsconnect/content/2/
+when: 1584127075.62578
+asMultiple: FALSE
+asStatic: FALSE
