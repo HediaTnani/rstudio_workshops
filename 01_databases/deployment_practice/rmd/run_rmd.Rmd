@@ -9,10 +9,11 @@ library(DBI)
 library(dbplyr)
 library(dplyr)
 library(ggplot2)
+library(config)
 ```
 
 ```{r}
-con <- dbConnect(odbc::odbc(), "Postgres Prod", timeout = 10)
+con <- dbConnect(odbc::odbc(), config::get("db_dsn"), timeout = 10)
 ```
 
 ```{r}
@@ -43,9 +44,4 @@ df %>%
   facet_wrap("date_day") +
   scale_y_continuous(labels = scales::comma)
 ```
-
-Deploy to: `[http://URL...amazonaws.com]/rsconnect`
-Username: `john_deere_user`
-Password: `john_deere_pass`
-Email: whatever you want (fake ok)
 

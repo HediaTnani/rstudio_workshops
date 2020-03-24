@@ -13,8 +13,8 @@ options(bitmapType='cairo')
 con <- dbConnect(odbc::odbc(), 
                  driver = "PostgreSQL",
                  server = "localhost",
-                 uid = Sys.getenv("uid"),
-                 pwd = Sys.getenv("pwd"),
+                 uid = Sys.getenv("db_uid"),
+                 pwd = Sys.getenv("db_pass"),
                  port = 5432,
                  database = "postgres")
 
@@ -23,7 +23,7 @@ con <- dbConnect(odbc::odbc(),
 ui <- fluidPage(
     
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Purchasing Data by Customer"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
