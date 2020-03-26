@@ -237,22 +237,6 @@ dbDisconnect(con)
 *Examine config file in `~/rstudio_workshops/config.yml`*
 ---
 
-### Environment Variables
-
-```{r}
-con <- dbConnect(
-  odbc::odbc(),
-  Driver = "PostgreSQL",
-  Server = "localhost",
-  UID    = Sys.getenv("db_uid"),
-  PWD    = Sys.getenv("db_pass"),
-  Port = 5432,
-  Database = "postgres"
-)
-dbListTables(con)
-dbDisconnect(con)
-```
----
 
 class: inverse
 
@@ -393,6 +377,7 @@ efficient SQL possible.
 ### `collect` for an R `data.frame`
 .pull-left[
 ```{r}
+q <- cust
 head(q, 3)
 names(q)
 ```
@@ -408,11 +393,26 @@ names(q)
 *Hint:* Look at the first two rows of the un-`collect`ed data.
 ---
 
+```{r}
+cust %>%
+  filter(customer_lat < -122) %>%
+  collect()
+
+cust %>%
+    collect() %>%
+  filter(customer_lon < -122)
+
+```
+
+
+
+---
+
 ### Un-Translated Functions
 What happens if I put in an R command w/ no SQL equivalent?
 ```{r}
 cust %>%
-  transmute(today = Sys.time()) %>% 
+  transmute(today = Sys.time()) %>%
   show_query()
 ```
 It just sends the command along - "maybe it's a SQL command?"
@@ -462,18 +462,18 @@ head(q, 3)
 q  %>%
   show_query()
 ```
-] 
+]
 
 ---
 # To The Workbook!
 
-`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it. 
+`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it.
 
-Going to go to breakout rooms to work through it. 
+Going to go to breakout rooms to work through it.
 
 If you run into problems, message me!
 
-If you need to refer to these slides, the code is in 
+If you need to refer to these slides, the code is in
 
 `~/rstudio_workshops/01_databases/slides/xarigan_slides.Rmd`
 
@@ -485,6 +485,11 @@ If you follow best practices, deploying to RStudio Connect should be seamless!
 Remember: your content needs to access the database without you.
 
 Shiny may require special attention for performance (see strategies).
+
+--- 
+# Save Workshop Materials
+
+
 
 ---
 # Appendix

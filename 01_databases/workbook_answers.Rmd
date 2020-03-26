@@ -1,0 +1,96 @@
+---
+title: "Database Workshop Workbook"
+output: html_document
+---
+
+```{r, setup}
+library(DBI)
+library(dplyr)
+library(ggplot2)
+
+# Which function from DBI? 
+  # Hint 1: Find the connection in the connections pane
+  # Hint 2: Tab autocomplete shows you all functions in a package
+con <- DBI::dbConnect(odbc::odbc(), "Postgres Prod")
+```
+
+# Examining Orders
+
+How many orders are there (note: 1 row/order in the orders table)?
+
+```{r}
+ord <- tbl(con, dbplyr::in_schema("retail", "orders"))
+# dplyr probably has a function for *count*ing the rows in a data frame...
+# You can browse functions in a package by typing e.g. dplyr:: and then using arrow keys
+
+dplyr::count(ord)
+```
+
+What are the names of the 5 highest-ordering customers by volume? 
+Challenge Q: Names of the 5 highest-ordering customers by revenue?
+
+```{r}
+# The orders table has one row per order, so each time a customer is in there is one order.
+# You can ignore the step_id variable.
+
+# Maybe customer names are in another table?
+cust <- tbl(con, dbplyr::in_schema("retail", "customer"))
+
+(plot_dat <- ord %>%
+  count(customer_id) %>%
+  inner_join(cust) %>%
+  arrange(desc(n)))
+
+# Challenge
+line <- tbl(con, dbplyr::in_schema("retail", "line_item"))
+prod <- tbl(con, dbplyr::in_schema("retail", "product"))
+ord %>%
+  inner_join(cust) %>%
+  inner_join(line) %>%
+  inner_join(prod) %>%
+  group_by(customer_id) %>%
+  summarize(total_rev = sum(price)) %>%
+  arrange(desc(total_rev))
+```
+
+Can I make a histogram of their orders?
+```{r}
+plot_dat <- plot_dat %>%
+  collect() %>%
+  mutate(n = as.numeric(n))
+
+# Some ggplot code that should work with the right input, maybe just print the data frame if it's not?
+# Perhaps as.numeric() would be helpful here
+ggplot(plot_dat, aes(x = customer_name, y = n)) +
+  geom_col()
+```
+
+What's the longest name in the customer table?
+```{r}
+# dplyr::summarize might be useful here
+# Also, perhaps the postgres string functions: https://www.tutorialspoint.com/postgresql/postgresql_string_functions.htm
+# Some common functions (min, mean, max, sum) have been translated...
+
+cust %>%
+  mutate(l = str_length(customer_name)) %>%
+  filter(l == max(l, na.rm = TRUE))
+```
+
+Let's write a function to return the customers with an arbitrary number of 
+letters in their name.
+
+It's all good to go, but you need to fill in what goes in the filter.
+```{r}
+# Checkout ?nchar...and remember !! allows you to evaluate before sending
+
+#' @param x a character
+#' @return a vector of names
+#' @examples
+cust_n_letters("hello world")
+cust_n_letters <- function(x) {
+  tbl(con, dbplyr::in_schema("retail", "customer")) %>%
+    dplyr::filter(str_length(customer_name) == !!nchar(x)) %>%
+    dplyr::pull(customer_name)
+}
+```
+

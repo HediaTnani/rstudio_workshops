@@ -202,7 +202,8 @@ dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"    
+## [6] "v_lineitems" "v_orders"
 ```
 
 ```r
@@ -249,7 +250,8 @@ dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"    
+## [6] "v_lineitems" "v_orders"
 ```
 
 ```r
@@ -258,30 +260,6 @@ dbDisconnect(con)
 *Examine config file in `~/rstudio_workshops/config.yml`*
 ---
 
-### Environment Variables
-
-
-```r
-con &lt;- dbConnect(
-  odbc::odbc(),
-  Driver = "PostgreSQL",
-  Server = "localhost",
-  UID    = Sys.getenv("db_uid"),
-  PWD    = Sys.getenv("db_pass"),
-  Port = 5432,
-  Database = "postgres"
-)
-dbListTables(con)
-```
-
-```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
-```
-
-```r
-dbDisconnect(con)
-```
----
 
 class: inverse
 
@@ -401,7 +379,8 @@ DBI::dbListTables(con)
 ```
 
 ```
-## [1] "customer"    "date"        "line_item"   "orders"      "product"     "v_lineitems" "v_orders"
+## [1] "customer"    "date"        "line_item"   "orders"      "product"    
+## [6] "v_lineitems" "v_orders"
 ```
 
 ### Send a query
@@ -432,10 +411,10 @@ head(cust, 2)
 ```
 ## # Source:   lazy query [?? x 6]
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   customer_id customer_name        customer_phone    customer_cc      customer_lon customer_lat
-##         &lt;int&gt; &lt;chr&gt;                &lt;chr&gt;             &lt;chr&gt;                   &lt;dbl&gt;        &lt;dbl&gt;
-## 1           1 Marilou Donnelly DVM 046-995-9387x9542 4054106117540070        -122.         37.8
-## 2           2 Aubrey Gulgowski III (020)136-2064     675976652024423         -122.         37.7
+##   customer_id customer_name customer_phone customer_cc customer_lon customer_lat
+##         &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;              &lt;dbl&gt;        &lt;dbl&gt;
+## 1           1 Marilou Donn… 046-995-9387x… 4054106117…        -122.         37.8
+## 2           2 Aubrey Gulgo… (020)136-2064  6759766520…        -122.         37.7
 ```
 --
 
@@ -491,17 +470,18 @@ efficient SQL possible.
 .pull-left[
 
 ```r
+q &lt;- cust
 head(q, 3)
 ```
 
 ```
-## # Source:   lazy query [?? x 1]
+## # Source:   lazy query [?? x 6]
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
-##   today              
-##   &lt;dttm&gt;             
-## 1 2020-03-24 23:23:24
-## 2 2020-03-24 23:23:24
-## 3 2020-03-24 23:23:24
+##   customer_id customer_name customer_phone customer_cc customer_lon customer_lat
+##         &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;              &lt;dbl&gt;        &lt;dbl&gt;
+## 1           1 Marilou Donn… 046-995-9387x… 4054106117…        -122.         37.8
+## 2           2 Aubrey Gulgo… (020)136-2064  6759766520…        -122.         37.7
+## 3           3 Arlis Koss    145.574.8189   8699968904…        -122.         37.8
 ```
 
 ```r
@@ -520,12 +500,12 @@ head(q, 3)
 ```
 
 ```
-## # A tibble: 3 x 1
-##   today              
-##   &lt;dttm&gt;             
-## 1 2020-03-24 23:23:24
-## 2 2020-03-24 23:23:24
-## 3 2020-03-24 23:23:24
+## # A tibble: 3 x 6
+##   customer_id customer_name customer_phone customer_cc customer_lon customer_lat
+##         &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;              &lt;dbl&gt;        &lt;dbl&gt;
+## 1           1 Marilou Donn… 046-995-9387x… 4054106117…        -122.         37.8
+## 2           2 Aubrey Gulgo… (020)136-2064  6759766520…        -122.         37.7
+## 3           3 Arlis Koss    145.574.8189   8699968904…        -122.         37.8
 ```
 
 ```r
@@ -533,7 +513,8 @@ names(q)
 ```
 
 ```
-## [1] "today"
+## [1] "customer_id"    "customer_name"  "customer_phone" "customer_cc"   
+## [5] "customer_lon"   "customer_lat"
 ```
 ]
 
@@ -545,7 +526,7 @@ What happens if I put in an R command w/ no SQL equivalent?
 
 ```r
 cust %&gt;%
-  transmute(today = Sys.time()) %&gt;% 
+  transmute(today = Sys.time()) %&gt;%
   show_query()
 ```
 
@@ -575,7 +556,7 @@ cust %&gt;%
 
 ```
 ## &lt;SQL&gt;
-## SELECT '2020-03-24' AS "today"
+## SELECT '2020-03-25' AS "today"
 ## FROM retail.customer
 ## LIMIT 3
 ```
@@ -594,9 +575,9 @@ cust %&gt;%
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
 ##   today     
 ##   &lt;chr&gt;     
-## 1 2020-03-24
-## 2 2020-03-24
-## 3 2020-03-24
+## 1 2020-03-25
+## 2 2020-03-25
+## 3 2020-03-25
 ```
 ]
 ---
@@ -629,9 +610,9 @@ head(q, 3)
 ## # Database: postgres [rstudio_prod@localhost:/postgres]
 ##   today              
 ##   &lt;dttm&gt;             
-## 1 2020-03-24 23:23:24
-## 2 2020-03-24 23:23:24
-## 3 2020-03-24 23:23:24
+## 1 2020-03-25 19:12:45
+## 2 2020-03-25 19:12:45
+## 3 2020-03-25 19:12:45
 ```
 
 ```r
@@ -644,18 +625,18 @@ q  %&gt;%
 ## SELECT CURRENT_TIMESTAMP AS "today"
 ## FROM retail.customer
 ```
-] 
+]
 
 ---
 # To The Workbook!
 
-`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it. 
+`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it.
 
-Going to go to breakout rooms to work through it. 
+Going to go to breakout rooms to work through it.
 
 If you run into problems, message me!
 
-If you need to refer to these slides, the code is in 
+If you need to refer to these slides, the code is in
 
 `~/rstudio_workshops/01_databases/slides/xarigan_slides.Rmd`
 

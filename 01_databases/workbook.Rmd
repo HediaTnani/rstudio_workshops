@@ -16,38 +16,37 @@ con <- DBI::___(odbc::odbc(), "Postgres Prod")
 
 # Examining Orders
 
-How many orders are there (note: 1 row/order in the orders table)?
+1. How many orders are there (note: 1 row/order in the orders table)?
 
 ```{r}
 ord <- tbl(con, dbplyr::in_schema("retail", "orders"))
-# dplyr probably has a function for this...
+# dplyr probably has a function for *count*ing the rows in a data frame...
+# You can browse functions in a package by typing e.g. dplyr:: and then using arrow keys
 
 ```
 
-Who are the 5 highest-ordering customers by volume? 
+2. Who are the 5 highest-ordering customers by volume? 
 
 ```{r}
-
-# Might be worth examining data types, sometimes they're weird
+# Might be worth examining data types, sometimes they're weird.
 # Perhaps as.numeric() would be helpful here
 ```
 
-Can I make a histogram of their orders?
+3. Can I make a histogram of their orders?
 ```{r}
 # Some ggplot code that should work with the right input
 ggplot(plot_dat, aes(x = customer_name, y = n)) +
   geom_col()
 ```
 
-What's the longest name in the customer table?
+4. What's the longest name in the customer table?
 ```{r}
-
 # dplyr::summarize might be useful here
 # Also, perhaps the postgres string functions: https://www.tutorialspoint.com/postgresql/postgresql_string_functions.htm
 # Some common functions have been translated...can't hurt to try!
 ```
 
-Let's write a function to return the number of customers with an arbitrary number of 
+5. Let's write a function to return the number of customers with an arbitrary number of 
 letters in their name.
 
 It's all good to go, but you need to fill in what goes in the filter.
