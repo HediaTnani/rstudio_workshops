@@ -1,36 +1,60 @@
 ---
 title: "Working with Databases in R"
-author: "Hadrien Dykiel & Alex Gold\n(Credit: Edgar Ruiz, James Blair)"
-date: "2020-02-26"
-output: xaringan::moon_reader
+author: 'Alex Gold, Solutions Engineer'
+date: "2020-02-26<br><font size = 3>*Credit: Edgar Ruiz, James Blair*</font>"
+output:
+  xaringan::moon_reader:
+    nature:
+      highlightLines: true
+    css: [default, metropolis, metropolis-fonts]
 ---
 
 ```{r setup, echo = FALSE, include = FALSE}
 library(DBI)
 library(dplyr)
+library(dbplyr)
+options(knitr.table.format = "html")
+knitr::opts_chunk$set(fig.retina = 3, warning = FALSE, message = FALSE)
 ```
 
 
 # Schedule
-1. Strategies for Writing Queries
-2. Mechanics of Querying Databases
-- Connecting
-- Writing + Sending Queries
-3. Deploying to RStudio Connect w/ Live Connections
+## I. Strategies for Writing Queries
+## II. Mechanics of Querying Databases
+ - Connecting
+ - Writing + Sending Queries
+ 
+## III. Deploying to RStudio Connect w/ Live Connections
+---
 
+# First: Get an Instance
+
+* Go to rstd.io/class
+  * Workshop ID: `db_workshop`
+* Click the link to your instance
+* Login to RStudio Server Pro
+  * Username: `db_workshop_user`
+  * Password: `db_workshop_pass`
+  
+--
+<br><br>
+.center[**Zoom Poll:👍🏻 when you're good to go.**]
+  
 ---
 
 # I. 3 Strategies for Efficient Queries
-1. Sample and Model
-2. Chunk and Pull
-3. Push Compute to Data
+
+## 1. Sample and Model
+## 2. Chunk and Pull
+## 3. Push Compute to Data
 --
+<br><br>
 
-
-(Not exclusive!)
+.center[**You don't have to choose just 1! Combine as needed!**]
 ---
 
 ## Strategy 1: Sample and Model
+
 .center[
 ![Sample and Model](images/sample_and_model.png)
 ]
@@ -78,48 +102,109 @@ library(dplyr)
 ☹️ Maybe your database is slow?
 
 ---
-
-# II. The Mechanics
-
-db.rstudio.com
-
-### R Packages
-- `DBI`: "front-end" for database connections w/ back-end options
-- `RPostgres`
-- `RMariaDB`
-- `RSQLite`
-- `bigrquery`
-- `odbc` <- generic option, works with Open Database Connectivity (ODBC) system (Pro Drivers)
-
-
-Process: 
-
-`Write Code` -> `Translate code` -> `Package sends to database` -> `Response`
+class: center
+<br><br><br>
+## Questions on Strategies?
 
 ---
 
-## Connection Methods
+# II. The Mechanics
 
-https://db.rstudio.com/best-practices/managing-credentials/
+For all of our recommendations on using databases, as well as how-tos:
 
-- Connections Pane
-- Code
+.center[[**db.rstudio.com**](https://db.rstudio.com)]
 
+---
+
+## Mechanics: Connecting
+
+.center[
+![Sample and Model](images/db_connect_diagram.png)
+
+]
+---
+
+### R Packages: ☂️s
+
+`DBI`: "front-end" for database connections w/ back-end options
+- "`DBI-compliant`": Back-end that implements DBI API (plays nicely with RStudio)
+
+
+`odbc`: generic DBI-compliant option, works with Open Database Connectivity (ODBC) system 
+- We provide [pro drivers](https://rstudio.com/products/drivers/) free of charge for popular databases.
+- Microsoft SQL Server, Oracle, PostgreSQL, Amazon Redshift, Amazon Athena, Google BigQuery, Salesforce, Apache Cassandra, Apache Hive, Apache Impala, Teradata, MySQL, IBM Netezza, MongoDB
+- Your database provider may provide an ODBC driver (e.g. SAP Hana).
+
+---
+
+### Connecting
+
+**First Choice: DBI-Compliant R Package for your DB**
+
+Combine R Package and Database Driver in 1!
+
+```
+DBI::dbConnect(RPostgres::postgres(), ...)
+```
+Options: `RPostgres`, `RMariaDB`, `RSQLite`, `bigrquery`
 --
+<br><br>
+**Also Great: Driver + `odbc`**
+
+Use `odbc::odbc` w/ system driver on system.
+```
+DBI::dbConnect(odbc::odbc(), driver = "Postgres", ...)
+```
+Requires driver `"Postgres"` be configured in `odbcinst.ini`.
+---
+# Key Takeaways
+
+If you're not using a database-specific package (`RPostgres`, `RMariaDB`, `RSQLite`, `bigrquery`), 
+you need **2(!)** things.
+
+**1** An R session with `DBI` + `odbc` packages.
+
+**2** A system `odbc` driver, probably configured by a Linux admin. 
+* You get some drivers with RStudio Pro products. 
+* Others may be provided by your database provider.
+
+
+---
+
+## How to Connect from the RStudio IDE
+
+- Connections Pane - can use point-and-click, generates code
+- Code - easier, can be used non-interactively (when deployed)
+
+---
+
+## Securing Credentials: Options
+
+#### Use a DSN 
+#### Prompt for Password/Keyring
+#### Config Package
+#### Environment Variables
+<br><br><br>
+
+.small[See https://db.rstudio.com/best-practices/managing-credentials/ for more details.]
+
+---
 
 ### Using a DSN
 ```{r}
 con <- dbConnect(odbc::odbc(), "Postgres Prod", timeout = 10)
+dbListTables(con)
 dbDisconnect(con)
 ```
 
-*Examine `/etc/odbc.ini` and `/etc/odbcinst.ini`*
+*Examine `/etc/odbc.ini` and `/etc/odbcinst.ini` to see how this works.*
 
---
+---
 
 ### Prompting for Passwords
 username `rstudio_prod`, pwd `prod_user` (weird order of dialogs...)
 ```{r, eval = FALSE}
+# Note, not run for presentation, because will break in Rmd
 con <- dbConnect(
   odbc::odbc(),
   Driver = "PostgreSQL",
@@ -132,32 +217,28 @@ con <- dbConnect(
 dbDisconnect(con)
 ```
 
---
+---
 
 ### Config Package
 ```{r}
-cfg <- config::get(file = here::here("01_databases/slides/config.yml"))
-con <- dbConnect(odbc::odbc(),
-                 Driver = cfg$driver,
-                 Server = cfg$server,
-                 UID    = cfg$uid,
-                 PWD    = cfg$pwd,
-                 Port   = cfg$port,
-                 Database = cfg$database
+cfg <- config::get()
+con <- dbConnect(
+  odbc::odbc(),
+  Driver = cfg$driver,
+  Server = cfg$server,
+  UID    = cfg$uid,
+  PWD    = cfg$pwd,
+  Port   = cfg$port,
+  Database = cfg$database
 )
+dbListTables(con)
+dbDisconnect(con)
 ```
-
---
-
-### Environment Variables
-
-`Sys.setenv(var = "val")`
-
-`~/.Rprofile`
-
-Project `.Rprofile`
-
+*Examine config file in `~/rstudio_workshops/config.yml`*
 ---
+
+
+class: inverse
 
 **Exercise**
 
@@ -167,7 +248,7 @@ _Connect to a database and Explore_
 
 2. Click on the `New Connection` button
 
-3. Select `Postgres Prod`
+3. Click on one of the connections.
 
 4. Click OK
 
@@ -179,33 +260,51 @@ _Connect to a database and Explore_
 
 ---
 
-## Interacting with Databases
+## Sending Queries
 
-- SQL code chunks (or scripts)
-- `dbGetQuery`
-- dplyr
+### SQL code chunks (or scripts)
+### `dbGetQuery`
+### dplyr
 
 ---
-### SQL Code Chunks
-Include a SQL code chunk in an RMarkdown doc.
 
-https://bookdown.org/yihui/rmarkdown/language-engines.html#sql
+### SQL Code Chunks 1/2
+.pull-left[
+Include a SQL code chunk in RMarkdown.
+<br><br>
+#### Connect via R.
+<br><br><br><br><br>
+####Send SQL Query
 
 `{sql, connection = con}`
+]
+.pull-right[
+<br><br>
+```{r}
+con <- DBI::dbConnect(
+  odbc::odbc(), 
+  "Postgres Prod"
+  )
+```
+<br>
 
 ```{sql, connection = con}
 /* SQL Chunk */
-SELECT * FROM retail.orders LIMIT 10;
+SELECT * FROM retail.orders LIMIT 1;
 ```
-
+]
 ---
+### SQL Code Chunks 2/2
+
 Add an `output.var` argument to read into R
 
 `{sql, connection = con, output.var = "dat"}`
 
+If same for all SQL chunks: `knitr::opts_chunk$set(connection = "con")`
+
 ```{sql, connection = con, output.var = "dat"}
 /* SQL Chunk */
-SELECT * FROM retail.orders LIMIT 10;
+SELECT * FROM retail.orders LIMIT 2;
 ```
 
 ```{r}
@@ -213,9 +312,6 @@ SELECT * FROM retail.orders LIMIT 10;
 dat
 ```
 
-If same for all SQL chunks: `knitr::opts_chunk$set(connection = "con")`
-
-Can also do entire scripts.
 ---
 
 ### `dbGetQuery`
@@ -228,183 +324,173 @@ DBI::dbListTables(con)
 
 ### Send a query
 ```{r}
-dat <- DBI::dbGetQuery(con, "SELECT * FROM retail.date LIMIT 10;")
-dat
+(dat <- DBI::dbGetQuery(con, "SELECT * FROM retail.date LIMIT 4;"))
 ```
 
+---
 
 ## dplyr + Databases = dbplyr
 
 ### Connect to a Table
-```{r, dplyr}
-library(dplyr)
-library(dbplyr)
-library(DBI)
+```{r}
+cust <- dplyr::tbl(con, dbplyr::in_schema("retail", "customer"))
+head(cust, 2)
 ```
+--
+
+#### Question
+What is cust? What will I get from `names(cust)`?
+
+**Zoom Poll:**
+1. `customer_id, customer_name, customer_phone, etc`
+2. Something weird 👽
+---
+# 👽👽👽👽👽👽👽
 
 ```{r}
-cust <- tbl(con, in_schema("retail", "customer"))
-
-cust
+names(cust)
 ```
-
-*Question:* What is cust? What will I get from `names(cust)`?
 
 --
 
-```{r}
-names(df)
-```
 
-🤯
----
 
-### Under the hood
+.pull-left[
+### Lazy Eval
+dplyr doesn't *do* anything for as long as possible. So cust isn't
+an actual table, it's a reference to a table in the SQL server.
 
+Let's dig in.
+]
+.pull-right[
+### Show Query
 SQL statement that actually runs when we ran `cust` as a command
 ```{r}
 cust %>%
   dplyr::show_query()
 ```
+]
 
---
-
-Use normal dplyr verbs to build tables
+I could keep adding more if I wanted. This allows `dbplyr` to write the most 
+efficient SQL possible.
+---
+### `collect` for an R `data.frame`
+.pull-left[
 ```{r}
-q <- cust %>%
-  filter(customer_lon < -122.4463) %>%
-  select(customer_name, customer_phone)
-
-q
-
-show_query(q)
+q <- cust
+head(q, 3)
+names(q)
 ```
+]
+.pull-right[
+```{r}
+q <- collect(q)
+head(q, 3)
+names(q)
+```
+]
 
-### Un-Translated Functions
+*Hint:* Look at the first two rows of the un-`collect`ed data.
+---
 
-What happens if I put in an R command w/ no SQL component?
 ```{r}
 cust %>%
-  mutate(today = Sys.time()) %>%
+  filter(customer_lat < -122) %>%
+  collect()
+
+cust %>%
+    collect() %>%
+  filter(customer_lon < -122)
+
+```
+
+
+
+---
+
+### Un-Translated Functions
+What happens if I put in an R command w/ no SQL equivalent?
+```{r}
+cust %>%
+  transmute(today = Sys.time()) %>%
   show_query()
 ```
---
+It just sends the command along - "maybe it's a SQL command?"
 
-Use PostgreSQL's native commands, in this case `now()`
+If I run this, I get an error, because `Sys.time` is not a Postgres function.
+
+---
+### Un-Translated Functions: Option 1/2
+#### Translate Before Sending
+
+Prefix w/ `!!` (bang-bang)
+.pull-left[
+```{r}
+cust %>%
+  mutate(today = !!Sys.Date()) %>%
+  select(today) %>%
+  head(3) %>%
+  show_query()
+```
+]
+.pull-right[
+```{r}
+cust %>%
+  mutate(today = !!Sys.Date()) %>%
+  select(today) %>%
+  head(3)
+```
+]
+---
+
+#### Use Built In Functions
+Use built-in SQL function `now()` for Postgres
+.pull-left[
 ```{r}
 q <- cust %>%
   transmute(today = now())
 
-q
+# Note: not an R function
+tryCatch(now(), error = function(e) e)
+```
+]
+.pull-right[
+```{r}
+# But
+head(q, 3)
 
 q  %>%
   show_query()
 ```
-
---
-
-
-```{r}
-cust %>%
-  mutate(today = now()) %>%
-  select(today) %>%
-  head()
-```
-
-###  Evaluate Before Sending
-
-Preview how `Sys.time()` is translated
-```{r}
-cust %>%
-  mutate(today = Sys.time()) %>%
-  show_query()
-```
-
-But when prefixed w/ bang-bang (`!!`)
-```{r}
-cust %>%
-  mutate(today = !!Sys.time()) %>%
-  show_query()
-```
-
-### Basic aggregation
-
-How many records are in the **product** table?
-
---
-
-```{r}
-prods <- tbl(con, in_schema("retail", "product"))  
-
-prods %>%
-  tally()
-```
+]
 
 ---
-### Controlling Returns
-What is this object?
-```{r}
-n_prods <- prods %>% tally()
-```
+# To The Workbook!
 
---
+`~/rstudio_workshops/01_databases/workbook.Rmd` has a workbook in it.
 
-```{r}
-names(n_prods)
-```
+Going to go to breakout rooms to work through it.
 
-How do I get a real R object?
+If you run into problems, message me!
 
---
+If you need to refer to these slides, the code is in
 
-```{r}
-n_prods <- collect(n_prods)
-n_prods
-names(n_prods)
-```
+`~/rstudio_workshops/01_databases/slides/xarigan_slides.Rmd`
 
 ---
+# Deploying
 
-### Basic aggregation 2
-What is the average customer longitude?  Average length of customer names?
---
+If you follow best practices, deploying to RStudio Connect should be seamless!
 
-```{r}
-cust %>%
-  summarise(
-    avg_cust_lon = mean(customer_lon, na.rm = TRUE),
-    avg_cust_name = mean(str_length(customer_name), na.rm = TRUE)
-  )
-```
+Remember: your content needs to access the database without you.
 
-How many records are in the **orders** table?
-```{r}
-```
+Shiny may require special attention for performance (see strategies).
 
-What's the most recent date in the **date** table?
-```{r}
-```
+--- 
+# Save Workshop Materials
 
-What is the SQL statement sent to find the date in the table above?
-```{r}
-```
-
-
-# III. Deployment to RStudio Connect
-
-Register RStudio Connect Server
-
-- Deploy to: `[http://URL...amazonaws.com]/rsconnect`
-- Username: `john_deere_user`
-- Password: `john_deere_pass`
-- Email: whatever you want (fake ok)
-
----
-
-For the shiny app, will need to add environment variables. 
 
 
 ---
 # Appendix
 - These slides were created with `rmarkdown` and `xaringan`. To learn more about the `xaringan` package, check out Alision's slides from her rstudio::conf 2019 workshop https://arm.rbind.io/slides/xaringan.html
-  

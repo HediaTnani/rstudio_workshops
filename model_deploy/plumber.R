@@ -18,7 +18,7 @@ function(cyl, hp, disp) {
     disp = disp
   )
   
-  predict(, newdata = new_dat)
+  predict(mod , newdata = new_dat)
 }
 
 
