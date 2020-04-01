@@ -1,0 +1,62 @@
+---
+title: "Orders By Day Report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DBI)
+library(dbplyr)
+library(dplyr)
+library(ggplot2)
+library(config)
+
+####### Fill In ###########
+# Let's use the config package along with a DSN to connect. 
+# Edit the code to grab the DSN name from the config file.
+# Maybe config::get would be helpful?
+con <- dbConnect(odbc::odbc(), ???)
+```
+
+```{r, include = FALSE}
+ord <- tbl(con, in_schema("retail", "orders"))
+cust <- tbl(con, in_schema("retail", "customer"))
+date <- tbl(con, in_schema("retail", "date"))
+```
+
+```{r, echo = FALSE, message = FALSE}
+########### Fill In ###########
+# Place the collect() %>% to be able to plot
+# We want to do as much work as possible in the database
+# Hint: Sometimes column formatting gets messed up pulling from databases and has to be fixed.
+# Double Hint: That's usually the only thing that has to change after pulling down.
+
+# If you want to play around with where it goes and see what's fastest, wrapping an R command in 
+# system.time(...) lets you time what's in ...
+df <- date %>%
+  inner_join(ord) %>%
+  group_by(date_year, date_month, date_day) %>%
+  summarize(
+    date = min(date, na.rm = TRUE), 
+    n = n()
+  ) %>%
+  ungroup() %>%
+  select(-date_year, -date_month) %>%
+  mutate(
+    n = as.integer(n), 
+    date = as.Date(date)
+  )
+```
+
+```{r, echo = FALSE}
+df %>%
+  ggplot(aes(x = date, y = n, group = date_day)) +
+  geom_line() +
+  facet_wrap("date_day") +
+  scale_y_continuous(labels = scales::comma)
+```
+
+```{r, include = FALSE}
+dbDisconnect(con)
+```
+

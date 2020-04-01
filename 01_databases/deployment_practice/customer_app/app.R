@@ -5,18 +5,23 @@ library(dplyr)
 library(ggplot2)
 
 options(bitmapType='cairo')
+if (interactive()) source("~/class-repo/.Rprofile")
 
-# Set Environment vars
-# Sys.setenv(uid = "rstudio_prod", pwd = "prod_user")
+# Let's use Environmental Variables to Connect
+con <- dbConnect(
+    odbc::odbc(),
+    Driver   = "PostgreSQL",
+    Server   = "localhost", 
+    Port     = 5432,
+    Database = "postgres",
+    
+    ######### FILL IN ###########
+    # Need to get username and password from environment vars
+    # Maybe check ~/class-repo/.Rprofile?
+    UID      = ???, # Username
+    PWD      = ???  # Password
+)
 
-
-con <- dbConnect(odbc::odbc(), 
-                 driver = "PostgreSQL",
-                 server = "localhost",
-                 uid = Sys.getenv("db_uid"),
-                 pwd = Sys.getenv("db_pass"),
-                 port = 5432,
-                 database = "postgres")
 
 
 # Define UI for application that draws a histogram
@@ -33,9 +38,7 @@ ui <- fluidPage(
         
         # Show a plot of the generated distribution
         mainPanel(
-            verbatimTextOutput("text"),
-            plotOutput("plot"),
-            DT::DTOutput("table")
+            plotOutput("plot")
         )
     )
 )
@@ -43,9 +46,11 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
     
-    ord <- tbl(con, in_schema("retail", "orders"))
-    cust <- tbl(con, in_schema("retail", "customer"))
-    date <- tbl(con, in_schema("retail", "date"))
+    ########### Fill In ############
+    # Fill in table names, perhaps connect to the database to get the names?
+    orders <- tbl(con, in_schema("retail", ???))
+    cust <- tbl(con, in_schema("retail", ???))
+    date <- tbl(con, in_schema("retail", ???))
     
     custs <- cust %>% count(customer_name) %>% pull(customer_name)
     updateSelectInput(session, "customer", choices = custs, selected = custs[1])
@@ -53,29 +58,24 @@ server <- function(input, output, session) {
     dat <- reactive({
         req(input$customer)
         
-        ord %>%
+        ########## Fill In  ############
+        # I need to collect() this data so I can plot it. 
+        # I want to collect() as late as possible, but need to make sure everything's properly formatted
+        # You can try running this chunk (63-70) to see if you got it, then try running the app.
+        orders %>%
             inner_join(cust) %>%
             inner_join(date) %>%
-            filter(customer_name == !!input$customer) %>%
+            ############ Fill In ##########
+            # I want to use the input$customer value...but I need to get it to evaluate before I send...
+            filter(customer_name == ?????) %>%
             select(date, customer_name, customer_phone, order_id) %>%
             arrange(date) %>%
-            collect() %>%
             mutate(date = as.Date(date))
     })
     
     order_count <- reactive({
         dat() %>%
             count(date)
-    })
-    
-    output$text <- renderText({
-        glue::glue("{dat()$customer_name[1]}: {dat()$customer_phone[1]}")
-    })
-    
-    output$table <- DT::renderDT({
-        order_count() %>%
-            arrange(desc(date)) %>%
-            rename(`N Orders` = n)
     })
     
     output$plot <- renderPlot({
