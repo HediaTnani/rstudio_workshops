@@ -1,0 +1,58 @@
+---
+title: "App ETL"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Get URLS of feeds
+```{r}
+feeds <- httr::GET("https://gbfs.capitalbikeshare.com/gbfs/gbfs.json") %>%
+  httr::content() %>%
+  magrittr::extract2("data") %>%
+  magrittr::extract2("en") %>%
+  magrittr::extract2("feeds") %>%
+  purrr::map_df(tibble::as.tibble)
+
+# Station Feed
+station_url <- feeds %>%
+  dplyr::filter(name == "station_information") %>%
+  dplyr::pull(url)
+
+# Get URL of current status feed
+status_url <- feeds %>%
+  dplyr::filter(name == "station_status") %>%
+  dplyr::pull(url)
+```
+
+# Get station data (name, lat, long)
+```{r}
+stations <- station_url %>%
+  httr::GET() %>%
+  httr::content() %>%
+  magrittr::extract2("data") %>%
+  magrittr::extract2("stations") %>%
+  purrr::map(function(x) x[c("station_id", "lat", "lon", "capacity", "name")]) %>%
+  purrr::map_dfr(tibble::as_tibble)
+```
+
+# Get Current Number of Bikes
+```{r}
+dat <- status_url %>%
+  httr::GET() %>%
+  httr::content() %>%
+  magrittr::extract2("data")  %>%
+  magrittr::extract2("stations") %>%
+  purrr::map_df(tibble::as.tibble)
+```
+
+# Write to CSV
+```{r}
+dir <- "00_original_app"
+readr::write_csv(stations, here::here(dir, "data", "station_data.csv"))
+readr::write_csv(dat, here::here(dir, "data", "bike_data.csv"))
+```
+
