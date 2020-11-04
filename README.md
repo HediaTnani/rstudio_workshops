@@ -1,7 +1,18 @@
-# plumber-demo
-accompanying files for plumber webinars &amp; demos
+This repository hosts content for workshops by RStudio's SE Team.
 
-## directories and files  
-/slides: slide deck
+# Interactive workshop content
 
-/iris_plot: a basic example of a plumber API
+## Databases
+Using databases from R with `DBI`, `odbc`, and RStudio's Pro Drivers.
+
+## APIs 
+Calling external APIs from R using `httr`, and creating APIs with R in `plumber`.
+
+## Model Deployment
+Creating and deploying machine learning models to RStudio Connect with `pins` and `plumber`.
+
+## Packages
+The how and why of writing R packages.
+
+## Breaking Up Shiny
+Breaking up big Shiny apps to make them easier to debug and manage.
