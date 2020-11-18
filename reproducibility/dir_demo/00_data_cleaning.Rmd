@@ -10,7 +10,7 @@ library(nycflights13)
 library(tidyverse)
 ```
 
-Load data
+Load all the data
 ```{r}
 df_raw <- read_csv(here::here("data", "raw", "flights.csv"))
 ```
