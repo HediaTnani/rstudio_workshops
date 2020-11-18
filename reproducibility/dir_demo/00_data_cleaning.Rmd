@@ -1,0 +1,45 @@
+---
+title: "Data Cleaning"
+author: "Alex Gold"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+Load data
+```{r}
+df_raw <- read_csv(here::here("data", "raw", "flights.csv"))
+```
+
+Get analysis dataset
+```{r}
+df <- flights %>%
+  select(year, month, sched_dep_time, arr_delay,
+  carrier, origin, dest, distance) %>%
+  mutate(delayed = arr_delay > 0)
+```
+
+Get feel for vars
+```{r}
+count(df, carrier)
+count(df, delayed)
+hist(df$sched_dep_time)
+hist(df$arr_delay)
+```
+
+```{r}
+map(df, function(x) sum(is.na(x)) / length(x))
+```
+
+```{r}
+df <- filter(df, !is.na(delayed))
+```
+
+```{r}
+write_csv(df, here::here("data", "clean_flights.csv"))
+```
+

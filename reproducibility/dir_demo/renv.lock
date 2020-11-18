@@ -4,7 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
+        "URL": "https://colorado.rstudio.com/rspm/all/latest"
       }
     ]
   },
@@ -690,3 +690,4 @@
     }
   }
 }
+

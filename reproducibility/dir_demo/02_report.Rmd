@@ -1,0 +1,34 @@
+---
+title: "The Status of NYC Flights"
+author: "Alex Gold"
+date: "9/16/2019"
+output: html_document
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+df <- read_csv(here::here("data", "clean_flights.csv"))
+mod <- readRDS(here::here("models", "log_reg.rds"))
+```
+
+This analysis of NYC flights revealed that flights later in the day are likelier
+to be late.
+
+```{r, warn = FALSE, echo = FALSE, messages = FALSE}
+df %>%
+  group_by(time = round(sched_dep_time, -1)) %>%
+  summarize(pct_delay = mean(delayed, na.rm = TRUE)) %>%
+ggplot(aes(x = time, y = pct_delay)) +
+  geom_point() +
+  ggthemes::theme_fivethirtyeight() +
+  ggtitle("Later Flights More Likely to be Late") +
+  stat_smooth()
+
+ggsave(here::here("plots", "delay_plot.png"))
+```
+
+# Appendix: Model
+```{r}
+summary(mod)
+```
+
